@@ -11,6 +11,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -22,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.CommandTrain;
 import frc.robot.commands.ShootCommand;
@@ -31,6 +33,8 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.HopperSubsytem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import frc.robot.subsystems.swervedrive.Vision.Cameras;
+
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Degrees;
 import java.io.File;
@@ -43,8 +47,8 @@ import swervelib.SwerveInputStream;
  */
 public class RobotContainer
 {
-  // testing
 
+  
   private final  CommandPS5Controller driverController = new CommandPS5Controller(0);
   private final CommandPS5Controller m_operatorController = new CommandPS5Controller(1);
 
@@ -63,11 +67,14 @@ public class RobotContainer
            m_shooter, m_Hopper
   );
 
-
-
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem       drivebase  = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                                                                                 "swerve/maxSwerve"));
+
+  private final Command aimAtTargetAutoCommand = drivebase.aimAtTarget(Cameras.LEFT_CAM, AutonConstants.aimAtTargetID, false);
+  private final Command driveToTargetCommand = drivebase.driveToPose(
+    drivebase.getVision().getAprilTagPose(AutonConstants.aimAtTargetID, new Transform2d(2, -0.50, new Rotation2d())));
+
 
   // /**
   //  * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
@@ -133,6 +140,11 @@ public class RobotContainer
     //NamedCommands.registerCommand("TimedIntaking", m_fuelSystem.timedIntaking());
 
     autChooser = AutoBuilder.buildAutoChooser("MiddleAuto");
+    NamedCommands.registerCommand("Aim at Target Command", aimAtTargetAutoCommand);
+    autChooser.addOption("Aim at Target Command", aimAtTargetAutoCommand);
+    autChooser.addOption("Drive to AprilTag", driveToTargetCommand);
+    autChooser.addOption("Test_One PathPlanner Command", drivebase.getAutonomousCommand("Test_One"));
+    // autChooser.addOption("Scoring Position Path", drivebase.getAutonomousCommand("ScoringPosition"));
     SmartDashboard.putData("Auto Chooser",autChooser);
   }
 
