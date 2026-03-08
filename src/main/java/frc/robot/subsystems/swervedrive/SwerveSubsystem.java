@@ -40,6 +40,7 @@ import frc.robot.Constants;
 import frc.robot.subsystems.swervedrive.Vision.Cameras;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -79,6 +80,8 @@ public class SwerveSubsystem extends SubsystemBase
    * PhotonVision class to keep an accurate odometry.
    */
   private Vision vision;
+
+  private PhotonTrackedTarget bestOfGivenTargets = null;
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -284,6 +287,60 @@ public class SwerveSubsystem extends SubsystemBase
       }
       return false;
       });
+  }
+
+  public Command aimAtNearestTag(Cameras camera, int[] aprilTagIDs, boolean endCommandWhenAimed)
+  {
+    return run(() -> {
+      Optional<PhotonPipelineResult> resultO = camera.getBestResult();
+      
+      if (resultO.isPresent())
+      {
+        var result = resultO.get();
+
+        ArrayList<PhotonTrackedTarget> bestTargets = camera.getBestTargets(result); // Returns the top three best targets
+
+        // SmartDashboard.putBoolean("AprilTag " + targetID + " in Field of View:", desiredTarget != null);
+
+        if (bestTargets == null) {
+          return;
+        }
+
+        findBestWithAnyTargetIDs:
+        for (PhotonTrackedTarget target: bestTargets) {
+          for (int aprilTagID: aprilTagIDs) {
+            if (target.getFiducialId() == aprilTagID && target != null) {
+              bestOfGivenTargets = target;
+              break findBestWithAnyTargetIDs; // Breaks out of the nested loop
+            }
+          }
+        }
+
+        if (bestOfGivenTargets != null) {
+          System.out.println("Aiming at AprilTag " + bestOfGivenTargets.getFiducialId());
+          drive(getTargetSpeeds(0,
+                              0,
+                              Rotation2d.fromDegrees(-(bestOfGivenTargets
+                                                          .getYaw()))));
+        }
+        else {
+          drive(getTargetSpeeds(0,
+                              0,
+                              Rotation2d.fromDegrees(0)));
+        }
+        
+      }   
+     }).until(() -> {
+      if (!endCommandWhenAimed) {
+        return false;
+      }
+
+      if (bestOfGivenTargets != null) {
+        return Math.abs(swerveDrive.getPose().getRotation().getDegrees() + bestOfGivenTargets.getYaw()) < 0.5;
+      }
+
+      return false;
+    });
   }
 
 

@@ -38,6 +38,18 @@ public final class Constants
 
     // Hold time on motor brakes when disabled
     public static final double WHEEL_LOCK_TIME = 10; // seconds
+
+    // AprilTag IDs for Aiming at Hub
+    public static final int blueHubRightTagID = 27;
+    public static final int blueHubLeftTagID = 24;
+    public static final int redHubRightTagID = 11;
+    public static final int redHubLeftTagID = 8;
+
+    public static final int blueHubCenterTagID = 26;
+    public static final int redHubCenterTagID = 10;
+
+
+
   }
 
   public static class OperatorConstants

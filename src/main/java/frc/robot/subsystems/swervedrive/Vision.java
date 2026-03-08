@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -342,10 +343,10 @@ public class Vision
      * Left Camera
      */
     LEFT_CAM("left_camera",
-             new Rotation3d(0, 0, 0),
-             new Translation3d(Units.inchesToMeters(12.056),
-                               Units.inchesToMeters(10.981),
-                               Units.inchesToMeters(8.44)),
+             new Rotation3d(0, Units.degreesToRadians(8), 0),
+             new Translation3d(Units.inchesToMeters(-14),
+                                Units.inchesToMeters(-6),
+                                Units.inchesToMeters(20)),
              VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
     /**
      * Right Camera
@@ -523,6 +524,17 @@ public class Vision
       return null;
     }
 
+    public ArrayList<PhotonTrackedTarget> getBestTargets(PhotonPipelineResult result) {
+      if (result.hasTargets()) {
+        List<PhotonTrackedTarget> targets = result.getTargets();
+        targets.sort(Comparator.comparing((target) -> target.getPoseAmbiguity()));
+        
+        if (targets.size() >= 2) {
+          return new ArrayList<PhotonTrackedTarget>(targets.subList(0, 2));
+        }
+      }
+    return null;
+    }
     /**
      * Get the latest result from the current cache.
      *

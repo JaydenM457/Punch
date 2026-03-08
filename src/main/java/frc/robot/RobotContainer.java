@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.AutonConstants;
+import frc.robot.Constants.DrivebaseConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.CommandTrain;
 import frc.robot.commands.ShootCommand;
@@ -144,6 +145,14 @@ public class RobotContainer
     autChooser.addOption("Aim at Target Command", aimAtTargetAutoCommand);
     autChooser.addOption("Drive to AprilTag", driveToTargetCommand);
     autChooser.addOption("Test_One PathPlanner Command", drivebase.getAutonomousCommand("Test_One"));
+    autChooser.addOption("Aim at Best With Any Target IDs", drivebase.aimAtNearestTag(Cameras.LEFT_CAM, 
+        new int[]{DrivebaseConstants.blueHubLeftTagID,
+          DrivebaseConstants.blueHubRightTagID,
+          DrivebaseConstants.redHubLeftTagID,
+          DrivebaseConstants.redHubRightTagID,
+        },
+        false
+      ));
     // autChooser.addOption("Scoring Position Path", drivebase.getAutonomousCommand("ScoringPosition"));
     SmartDashboard.putData("Auto Chooser",autChooser);
   }
@@ -220,6 +229,16 @@ public class RobotContainer
       driverController.options().whileTrue(Commands.none());
       driverController.L1().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
       driverController.R1().onTrue(Commands.none());
+      
+      //AprilTag Aiming Triggers
+      driverController.R3().onTrue(drivebase.aimAtNearestTag(Cameras.LEFT_CAM, 
+        new int[]{DrivebaseConstants.blueHubLeftTagID,
+          DrivebaseConstants.blueHubRightTagID,
+          DrivebaseConstants.redHubLeftTagID,
+          DrivebaseConstants.redHubRightTagID,
+        },
+        true
+      ));
     }
 
   }
