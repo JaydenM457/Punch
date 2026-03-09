@@ -4,9 +4,23 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Pounds;
+import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.Rotations;
+
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Mass;
+import edu.wpi.first.units.measure.Velocity;
 import swervelib.math.Matter;
+import yams.gearing.GearBox;
+import yams.gearing.MechanismGearing;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean constants. This
@@ -49,29 +63,82 @@ public final class Constants
     public static final double TURN_CONSTANT    = 6;
   }
 
-    public static class ARM_CONSTANTS{
-      public static final int ARM_ID = 6;//SM
-  }
-
     public static class INDEXER_CONSTANTS{
-      public static final int INDEXER_ID = 4;//SF
+    public static final int INDEXER_ID = 4;//SF
   }
 
-    public static class INTAKE_CONSTANTS{
-      public static final int INTAKE_ID = 7;//SM
+  public static class INTAKE_CONSTANTS{
+    public static final int INTAKE_ID = 7;//SM
   }
 
-    public static class SHOOTER_CONSTANTS{
-      public static final int SHOOTER_ID = 2;//SF
-      public static final int SHOOTER_TWO_ID = 3;//SF
+  public static class HOPPER_CONSTANTS{
+    public static final int HOPPER_ID = 5;//SM
   }
 
-    public static class HOPPER_CONSTANTS{
-      public static final int HOPPER_ID = 5;//SM
+
+  public static class ARM_CONSTANTS{
+    public static final int ARM_ID = 6;//SM
+    public static double kP = 20;
+    public static double kD = 0;
+    public static double kI = 0;
+
+    public static double kS = 0;
+    public static double kV = 0.01;
+    public static double kA = 0; 
+    public static Angle LOWER_SOFT_LIMIT = Rotations.of(0.288);
+    public static Angle UPPER_SOFT_LIMIT = Rotations.of(0.652);
+    public static Angle LOWER_HARD_LIMIT = Rotations.of(0.288);
+    public static Angle UPPER_HARD_LIMIT = Rotations.of(0.652);
+    public static Angle HORIZONTAL_ZERO = Rotations.of(0.590);
+    public final Mass     WEIGHT = Pounds.of(3);
+    public final DCMotor  MOTORS = DCMotor.getNEO(1);
+    public final Distance LENGTH = Inches.of(14);
+    public final MechanismGearing GEARING = new MechanismGearing(GearBox.fromReductionStages(75));
+    public static Angle TOLERANCE = Degrees.of(5);
+
   }
 
+  public static class SHOOTER_CONSTANTS{
+    public static final int SHOOTER_ID = 2;//SF
+    public static final int SHOOTER_TWO_ID = 3;//SF
+    public static double kP = 0.0128;
+    public static double kD = 0;
+    public static double kI = 0;
+
+    public static double kS = 0.15;
+    public static double kV = 0.1011;
+    public static double kA = 0;
+    public final MechanismGearing GEARING = new MechanismGearing(GearBox.fromReductionStages(1,1));
+    public final Mass     WEIGHT = Pounds.of(1);
+    public final Distance DIAMETER = Inches.of(2);
+    public static AngularVelocity LOWER_SOFT_LIMIT = RPM.of(6500);
+
+  }
+
+
+  
   public static class COMMAND_TRAIN_CONSTANTS{
-    
+  
+    public static final Angle INTAKE_ANGLE = Degrees.of(235);
+    public static final Angle SHOOT_ANGLE = Degrees.of(200);
+    public static final Angle SAFE_ANGLE = Degrees.of(180);
+
+    public static class INTAKING_COMMAND_CONSTANTS {
+      public static double INTAKE_INTAKE_SPEED = -1;
+      public static double HOPPER_INTAKE_SPEED = -0.01;
+    }
+
+    public static class MIXER_COMMAND_CONSTANTS{
+      public static double HOPPER_OUT = 1;
+      public static double HOPPER_IN = -1;
+    }
+
+    public static class THROWUP_COMMAND_CONSTANTS{
+      public static double INTAKE_OUT_HALF = 0.5;
+      public static double HOPPER_OUT_HALF = 0.5;
+      public static double INDEXER_OUT_HALF = 0.5;
+      public static final AngularVelocity SHOOTER_OUT = RPM.of(-500);
+    }
   }
 }
 

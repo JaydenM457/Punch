@@ -5,26 +5,30 @@ import static edu.wpi.first.units.Units.RPM;
 import java.util.function.Supplier;
 
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.HopperSubsytem;
 
-public class ShootCommand extends Command
+public class AutoShoot extends Command
 {
 
     private ShooterSubsystem shooter;
     private IndexerSubsystem indexer;
     private HopperSubsytem Hopper;
     private Supplier<AngularVelocity> setpoint;
+    private Timer timer = new Timer();
+    private double duration;
     
 
-    public ShootCommand(Supplier<AngularVelocity> shootSpeed, ShooterSubsystem shooter, IndexerSubsystem indexer, HopperSubsytem Hopper)
+    public AutoShoot(Supplier<AngularVelocity> shootSpeed, ShooterSubsystem shooter, IndexerSubsystem indexer, HopperSubsytem Hopper, double durationSeconds)
     {
         this.shooter = shooter;
         this.indexer = indexer;
         this.Hopper = Hopper;
         setpoint = shootSpeed;
+        this.duration =durationSeconds;
         addRequirements(shooter, indexer, Hopper);
     }
     
@@ -36,6 +40,8 @@ public class ShootCommand extends Command
   public void initialize()
   {
     shooter.setMechanismVelocitySetpoint(setpoint.get());
+        timer.reset();
+        timer.start();
   }
 
   /**
@@ -72,7 +78,7 @@ public class ShootCommand extends Command
   @Override
   public boolean isFinished()
   {
-    return false;
+    return timer.hasElapsed(duration);
   }
 
   /**
@@ -85,6 +91,8 @@ public class ShootCommand extends Command
   @Override
   public void end(boolean interrupted)
   {
-    shooter.setduty(0);
+    //shooter.setduty(0);
+    indexer.set(0);
+    Hopper.set(0);
   }
 }

@@ -17,6 +17,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Shoot"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Shoot to pickup 2 A(3)"
@@ -26,6 +32,12 @@
           "type": "path",
           "data": {
             "pathName": "Pickup 2 to shoot A(4)"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Shoot"
           }
         }
       ]

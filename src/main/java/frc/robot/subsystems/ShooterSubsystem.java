@@ -33,15 +33,15 @@ public class ShooterSubsystem extends SubsystemBase {
 
   private SmartMotorControllerConfig smcConfig = new SmartMotorControllerConfig(this)
   .withControlMode(ControlMode.CLOSED_LOOP)
-  .withClosedLoopController(0, 0, 0.)
-  .withSimClosedLoopController(0.06, 0, 0)
-  .withFeedforward(new SimpleMotorFeedforward(0.15, 0.105, 0))
+  .withClosedLoopController(0.0128, 0, 0)
+  .withSimClosedLoopController(0, 0, 0)
+  .withFeedforward(new SimpleMotorFeedforward(0.15, 0.1011, 0))
   //.withSimFeedforward(new SimpleMotorFeedforward(0, 0, 0))
   .withTelemetry("ShooterMotor", TelemetryVerbosity.HIGH)
   .withGearing(new MechanismGearing(GearBox.fromReductionStages(1,1)))
   .withMotorInverted(false)
   .withIdleMode(MotorMode.COAST)
-  .withStatorCurrentLimit(Amps.of(40))
+  .withStatorCurrentLimit(Amps.of(40))//////
   .withFollowers(Pair.of(shootertwo, true));
 
   private SmartMotorController sparkSmartMotorController = new SparkWrapper(shooterMotor, DCMotor.getNeoVortex(2), smcConfig);
