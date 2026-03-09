@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -145,13 +146,13 @@ public class RobotContainer
     autChooser.addOption("Aim at Target Command", aimAtTargetAutoCommand);
     autChooser.addOption("Drive to AprilTag", driveToTargetCommand);
     autChooser.addOption("Test_One PathPlanner Command", drivebase.getAutonomousCommand("Test_One"));
-    autChooser.addOption("Aim at Nearest Side Hub Tag", drivebase.aimAtNearestTag(Cameras.LEFT_CAM, 
+    autChooser.addOption("Aim at Side of Hub and Shoot", new ParallelCommandGroup(drivebase.aimAtNearestTag(Cameras.LEFT_CAM, 
         new int[]{DrivebaseConstants.blueZoneHubLeftTagID,
           DrivebaseConstants.blueZoneHubRightTagID,
           DrivebaseConstants.redZoneHubLeftTagID,
           DrivebaseConstants.redZoneHubRightTagID,
         }
-      ));
+      ), m_fuelSystem.shoot()).withTimeout(5));
     // autChooser.addOption("Scoring Position Path", drivebase.getAutonomousCommand("ScoringPosition"));
     SmartDashboard.putData("Auto Chooser",autChooser);
   }
@@ -229,14 +230,25 @@ public class RobotContainer
       driverController.L1().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
       driverController.R1().onTrue(Commands.none());
       
-      // AprilTag Aiming Triggers
-      driverController.R3().onTrue(drivebase.aimAtNearestTag(Cameras.LEFT_CAM, 
+      // Aim at the nearest AprilTag on the side of a hub
+      driverController.R3().whileTrue(drivebase.aimAtNearestTag(Cameras.LEFT_CAM, 
         new int[]{DrivebaseConstants.blueZoneHubLeftTagID,
           DrivebaseConstants.blueZoneHubRightTagID,
           DrivebaseConstants.redZoneHubLeftTagID,
           DrivebaseConstants.redZoneHubRightTagID,
         }
       ));
+
+      // Aim and shoot from the side of a hub
+      // driverController.R3().onTrue(
+      //   new ParallelCommandGroup(drivebase.aimAtNearestTag(Cameras.LEFT_CAM, 
+      //   new int[]{DrivebaseConstants.blueZoneHubLeftTagID,
+      //     DrivebaseConstants.blueZoneHubRightTagID,
+      //     DrivebaseConstants.redZoneHubLeftTagID,
+      //     DrivebaseConstants.redZoneHubRightTagID,
+      //   }
+      // ), m_fuelSystem.shoot()));
+
     }
 
   }
