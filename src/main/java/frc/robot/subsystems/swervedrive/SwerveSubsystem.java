@@ -254,13 +254,13 @@ public class SwerveSubsystem extends SubsystemBase
         SmartDashboard.putBoolean("AprilTag " + targetID + " in Field of View:", desiredTarget != null);
 
         if (result.hasTargets() && desiredTarget != null) {
-          SmartDashboard.putNumber("Distance from AprilTag to Robot", vision.getDistanceFromAprilTag(targetID));
-
           PIDController pid = new PIDController(1, 0, 0);
 
           double pidCalculation = pid.calculate(swerveDrive.getYaw().getDegrees(), desiredTarget.getYaw());
           
           double turnAngle = -1 * pidCalculation;
+
+          SmartDashboard.putNumber("Aiming at AprilTag", desiredTarget.getFiducialId());
 
           drive(getTargetSpeeds(0,
                               0,
@@ -293,7 +293,7 @@ public class SwerveSubsystem extends SubsystemBase
         }
       }
       return false;
-      });
+      }).finallyDo(() -> {SmartDashboard.putNumber("Aiming at AprilTag", -1);});
   }
 
   /*
@@ -320,10 +320,12 @@ public class SwerveSubsystem extends SubsystemBase
 
         findBestWithAnyTargetIDs:
         for (PhotonTrackedTarget target: bestTargets) {
-          for (int aprilTagID: aprilTagIDs) {
-            if (target.getFiducialId() == aprilTagID && target != null) {
-              nearestDesiredTarget = target;
-              break findBestWithAnyTargetIDs; // Breaks out of the nested loop
+          if (target != null) {
+            for (int aprilTagID: aprilTagIDs) {
+              if (target.getFiducialId() == aprilTagID) {
+                nearestDesiredTarget = target;
+                break findBestWithAnyTargetIDs; // Breaks out of the nested loop
+              }
             }
           }
         }
@@ -335,18 +337,21 @@ public class SwerveSubsystem extends SubsystemBase
           
           double turnAngle = -1 * pidCalculation;
 
+          SmartDashboard.putNumber("Aiming at AprilTag", nearestDesiredTarget.getFiducialId());
+
           drive(getTargetSpeeds(0,
                               0,
                               Rotation2d.fromDegrees(turnAngle)));
         }
         else {
+
           drive(getTargetSpeeds(0,
                               0,
                               Rotation2d.fromDegrees(0)));
         }
         
       }   
-     });
+     }).finallyDo(() -> {SmartDashboard.putNumber("Aiming at AprilTag", -1);});
   }
 
 

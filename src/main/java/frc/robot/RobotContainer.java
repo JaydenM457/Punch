@@ -145,14 +145,15 @@ public class RobotContainer
     NamedCommands.registerCommand("Aim at Target Command", aimAtTargetAutoCommand);
     autChooser.addOption("Aim at Target Command", aimAtTargetAutoCommand);
     autChooser.addOption("Drive to AprilTag", driveToTargetCommand);
-    autChooser.addOption("Test_One PathPlanner Command", drivebase.getAutonomousCommand("Test_One"));
+    // autChooser.addOption("Test_One PathPlanner Command", drivebase.getAutonomousCommand("Test_One"));
     autChooser.addOption("Aim at Side of Hub and Shoot", new ParallelCommandGroup(drivebase.aimAtNearestTag(Cameras.LEFT_CAM, 
         new int[]{DrivebaseConstants.blueZoneHubLeftTagID,
           DrivebaseConstants.blueZoneHubRightTagID,
           DrivebaseConstants.redZoneHubLeftTagID,
           DrivebaseConstants.redZoneHubRightTagID,
         }
-      ), m_fuelSystem.shoot()).withTimeout(5));
+      ), m_fuelSystem.shoot())
+      .withTimeout(5));
     // autChooser.addOption("Scoring Position Path", drivebase.getAutonomousCommand("ScoringPosition"));
     SmartDashboard.putData("Auto Chooser",autChooser);
   }
@@ -240,7 +241,7 @@ public class RobotContainer
       ));
 
       // Aim and shoot from the side of a hub
-      // driverController.R3().onTrue(
+      // driverController.R3().whileTrue(
       //   new ParallelCommandGroup(drivebase.aimAtNearestTag(Cameras.LEFT_CAM, 
       //   new int[]{DrivebaseConstants.blueZoneHubLeftTagID,
       //     DrivebaseConstants.blueZoneHubRightTagID,
