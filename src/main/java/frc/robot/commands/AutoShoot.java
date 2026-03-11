@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.HopperSubsytem;
@@ -20,15 +21,16 @@ public class AutoShoot extends Command
     private Supplier<AngularVelocity> setpoint;
     private Timer timer = new Timer();
     private double duration;
-    
+    private Command armOscillateCommand;
 
-    public AutoShoot(Supplier<AngularVelocity> shootSpeed, ShooterSubsystem shooter, IndexerSubsystem indexer, HopperSubsytem Hopper, double durationSeconds)
+    public AutoShoot(Supplier<AngularVelocity> shootSpeed, ShooterSubsystem shooter, IndexerSubsystem indexer, HopperSubsytem Hopper, double durationSeconds, Command armOscillate)
     {
         this.shooter = shooter;
         this.indexer = indexer;
         this.Hopper = Hopper;
         setpoint = shootSpeed;
         this.duration =durationSeconds;
+        this.armOscillateCommand = armOscillate;
         addRequirements(shooter, indexer, Hopper);
     }
     
@@ -54,6 +56,7 @@ public class AutoShoot extends Command
     shooter.setMechanismVelocitySetpoint(setpoint.get());
     if (shooter.getVelocity().in(RPM) >= setpoint.get().in(RPM) * 0.95)
     {
+        CommandScheduler.getInstance().schedule(armOscillateCommand);
         indexer.setduty(-1);
         Hopper.setduty(-1);
     }else{
@@ -91,8 +94,9 @@ public class AutoShoot extends Command
   @Override
   public void end(boolean interrupted)
   {
-    shooter.setMechanismVelocitySetpoint(RPM.of(0));
-    //shooter.set(0);
+    //shooter.setMechanismVelocitySetpoint(RPM.of(0));
+    CommandScheduler.getInstance().cancel(armOscillateCommand);
+    shooter.set(0);
     indexer.setduty(0);
     Hopper.setduty(0);
   }

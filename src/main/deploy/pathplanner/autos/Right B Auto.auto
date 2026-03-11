@@ -5,15 +5,15 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "Start to shoot B(1)"
+            "name": "ArmDown"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Shoot to midfeild B(2)"
+            "pathName": "Start to shoot B(1)"
           }
         },
         {
@@ -25,19 +25,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Intaking to Fairy B(3)"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 4.0
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Fairy to intake2 B(4)"
+            "pathName": "Shoot to midfeild B(2)"
           }
         },
         {

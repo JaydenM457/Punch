@@ -80,13 +80,13 @@ public final class Constants
     public static double kV = 0.01;
     public static double kA = 0; 
 
-    public static Angle LOWER_SOFT_LIMIT = Rotations.of(0.336);
-    public static Angle UPPER_SOFT_LIMIT = Rotations.of(0.718);
+    public static Angle LOWER_SOFT_LIMIT = Rotations.of(0.171);
+    public static Angle UPPER_SOFT_LIMIT = Rotations.of(0.555);
 
-    public static Angle LOWER_HARD_LIMIT = Rotations.of(0.336);
-    public static Angle UPPER_HARD_LIMIT = Rotations.of(0.718);
+    public static Angle LOWER_HARD_LIMIT = Rotations.of(0.171);
+    public static Angle UPPER_HARD_LIMIT = Rotations.of(0.555);
 
-    public static Angle HORIZONTAL_ZERO = Rotations.of(0.627);
+    public static Angle HORIZONTAL_ZERO = Degrees.of(0.481);
     // public final static Mass     WEIGHT = Pounds.of(3);
     // public final static DCMotor  MOTORS = DCMotor.getNEO(1);
     // public final static Distance LENGTH = Inches.of(14);
@@ -108,7 +108,7 @@ public final class Constants
     public static double kI = 0;
 
     public static double kS = 0.15;
-    public static double kV = 0.1011;
+    public static double kV = 0.1411;
     public static double kA = 0;
     // public final MechanismGearing GEARING = new MechanismGearing(GearBox.fromReductionStages(1,1));
     // public final Mass     WEIGHT = Pounds.of(1);
@@ -125,13 +125,13 @@ public final class Constants
   
   public static class COMMAND_TRAIN_CONSTANTS{
   
-    public static final Angle DOWN_ANGLE = Degrees.of(235);
-    public static final Angle SHOOT_ANGLE = Degrees.of(200);
-    public static final Angle SAFE_ANGLE = Degrees.of(180);
+    public static final Angle DOWN_ANGLE = Degrees.of(149);
+    public static final Angle SHOOT_ANGLE = Degrees.of(60);
+    public static final Angle SAFE_ANGLE = Degrees.of(40);
 
     public static class INTAKING_COMMAND_CONSTANTS {
       public static double INTAKE_INTAKE_SPEED = -1;
-      public static double HOPPER_INTAKE_SPEED = -0.01;
+      public static double HOPPER_INTAKE_SPEED = -0.1;
     }
 
     public static class MIXER_COMMAND_CONSTANTS{

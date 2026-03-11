@@ -9,21 +9,9 @@
           "data": {
             "commands": [
               {
-                "type": "named",
-                "data": {
-                  "name": "ArmDown"
-                }
-              },
-              {
                 "type": "path",
                 "data": {
                   "pathName": "test"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intake_Intake"
                 }
               }
             ]

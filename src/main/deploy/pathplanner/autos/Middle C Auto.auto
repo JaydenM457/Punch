@@ -17,6 +17,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "IntakeStop"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Intaking to Shoot(C3)"
@@ -32,24 +38,6 @@
           "type": "path",
           "data": {
             "pathName": "Shoot to Dump(C4)"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 3.0
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Dump to Shoot(C5)"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Shoot"
           }
         }
       ]

@@ -25,7 +25,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.COMMAND_TRAIN_CONSTANTS;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.AutoCommands;
-import frc.robot.commands.AutoIntaking;
+//import frc.robot.commands.AutoCommands;
+//import frc.robot.commands.AutoIntaking;
 import frc.robot.commands.AutoShoot;
 import frc.robot.commands.CommandTrain;
 import frc.robot.commands.ShootCommand;
@@ -34,6 +35,7 @@ import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
+//import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.HopperSubsytem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import static edu.wpi.first.units.Units.RPM;
@@ -55,11 +57,13 @@ public class RobotContainer
   private final CommandPS5Controller m_operatorController = new CommandPS5Controller(1);
 
    private final ArmSubsystem m_arm = new ArmSubsystem();
-
+   //private final ARM arm = new ARM();
   private final IndexerSubsystem m_indexer = new IndexerSubsystem();
    private final IntakeSubsystem m_intake = new IntakeSubsystem();
   private final ShooterSubsystem m_shooter = new ShooterSubsystem();
   private final HopperSubsytem m_Hopper = new HopperSubsytem();
+
+  private final Command armOscillateCommand;
 
   // Systems (command factories)
   private final CommandTrain m_CommandTrain = new CommandTrain(
@@ -76,6 +80,38 @@ public class RobotContainer
            m_shooter, m_Hopper
   );
 
+    public Command Shoot() {
+    return m_CommandTrain.mixer()
+        .andThen(new ShootCommand(() -> RPM.of(3050),
+            m_shooter,
+            m_indexer,
+            m_Hopper,
+            armOscillateCommand));
+}
+    public Command ShootTWO() {
+    return m_CommandTrain.mixer()
+        .andThen(new ShootCommand(() -> RPM.of(3300),
+            m_shooter,
+            m_indexer,
+            m_Hopper,
+            armOscillateCommand));
+}
+    public Command ShootTHREE() {
+    return m_CommandTrain.mixer()
+        .andThen(new ShootCommand(() -> RPM.of(3050),
+            m_shooter,
+            m_indexer,
+            m_Hopper,
+            armOscillateCommand));
+}
+    public Command ShootFOUR() {
+    return m_CommandTrain.mixer()
+        .andThen(new ShootCommand(() -> RPM.of(3050),
+            m_shooter,
+            m_indexer,
+            m_Hopper,
+            armOscillateCommand));
+}
 
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem       drivebase  = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
@@ -123,16 +159,17 @@ public class RobotContainer
 
   public RobotContainer()
   {
+  armOscillateCommand = m_CommandTrain.armOscillate();
+  //mixer = m_CommandTrain.mixer();
 
-
-    //m_indexer.setDefaultCommand(m_indexer.set(0));
+  m_indexer.setDefaultCommand(m_indexer.set(0));
       m_intake.setDefaultCommand(m_intake.set(0));
-    // //m_shooter.setDefaultCommand(m_shooter.set(0));
+    m_shooter.setDefaultCommand(m_shooter.set(0));
     
     m_Hopper.setDefaultCommand(m_Hopper.set(0));
     //m_arm.setDefaultCommand(m_arm.setAngle(Degrees.of(-40)));
 
-  
+    //arm.setDefaultCommand(arm.set(0));
 
 
 
@@ -143,12 +180,13 @@ public class RobotContainer
     DriverStation.silenceJoystickConnectionWarning(true);
     //NamedCommands.registerCommand("TimedShoot", m_CommandTrain.timedShoot());
     //NamedCommands.registerCommand("TimedIntaking", m_CommandTrain.timedIntaking());
-    NamedCommands.registerCommand("Shoot", new AutoShoot(()->RPM.of(3000), 
-                                      m_shooter, m_indexer, m_Hopper, 3));
-    NamedCommands.registerCommand("Intake", new AutoIntaking(m_arm, m_intake, m_Hopper));
-    NamedCommands.registerCommand("Intake_Intake", m_intake.set(1).alongWith(m_Hopper.set(0.1)).withTimeout(1));
-    
-    NamedCommands.registerCommand("ArmDown", m_arm.setAngleAndStop(COMMAND_TRAIN_CONSTANTS.DOWN_ANGLE).withTimeout(1));
+     NamedCommands.registerCommand("Shoot", new AutoShoot(()->RPM.of(3000), 
+                                      m_shooter, m_indexer, m_Hopper, 3, armOscillateCommand));
+    NamedCommands.registerCommand("Intake",  a_Commands.Auto_Intaking());
+        NamedCommands.registerCommand("IntakeStop",  a_Commands.Auto_Intaking_STOP());
+    //NamedCommands.registerCommand("Intake_Intake", m_intake.set(1).alongWith(m_Hopper.set(0.1)).withTimeout(1));
+    NamedCommands.registerCommand("AutoDone", Commands.runOnce(() -> SmartDashboard.putBoolean("Auto Finished", true)));
+    NamedCommands.registerCommand("ArmDown", m_arm.setAngleAndStop(COMMAND_TRAIN_CONSTANTS.DOWN_ANGLE));
 
     autChooser = AutoBuilder.buildAutoChooser("MiddleAuto");
     SmartDashboard.putData("Auto Chooser",autChooser);
@@ -161,36 +199,44 @@ public class RobotContainer
    * {@link CommandPS5Controller Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller PS4}
    * controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight joysticks}.
    */
+
   private void configureBindings()
   {
-    new Trigger(() -> 
-        m_operatorController.L1().getAsBoolean() || 
-        m_operatorController.L2().getAsBoolean() ||
-        m_operatorController.R1().getAsBoolean() ||
-        m_operatorController.R2().getAsBoolean() 
-    ).whileTrue(
-        m_arm.setAngle(COMMAND_TRAIN_CONSTANTS.SHOOT_ANGLE)
-    ).onFalse(
-        m_arm.setAngle(COMMAND_TRAIN_CONSTANTS.DOWN_ANGLE)
-    );
+    // new Trigger(() -> 
+    //     m_operatorController.L1().getAsBoolean() || 
+    //     m_operatorController.L2().getAsBoolean() ||
+    //     m_operatorController.R1().getAsBoolean() ||
+    //     m_operatorController.R2().getAsBoolean() 
+    // ).whileTrue(
+    //     m_arm.setAngle(COMMAND_TRAIN_CONSTANTS.SHOOT_ANGLE)
+    // ).onFalse(
+    //     m_arm.setAngle(COMMAND_TRAIN_CONSTANTS.DOWN_ANGLE)
+    // );
 
     
-    m_operatorController.R2().whileTrue(new ShootCommand(() -> RPM.of(3100),  
-    m_shooter, m_indexer, m_Hopper));
-    m_operatorController.R1().whileTrue(new ShootCommand(() -> RPM.of(2900),  
-    m_shooter, m_indexer, m_Hopper));
-    m_operatorController.L1().whileTrue(new ShootCommand(() -> RPM.of(2500),  
-    m_shooter, m_indexer, m_Hopper));
-    m_operatorController.L2().whileTrue(new ShootCommand(() -> RPM.of(2200),  
-    m_shooter, m_indexer, m_Hopper));
+    // m_operatorController.R2().whileTrue(new ShootCommand(() -> RPM.of(3050),  
+    // m_shooter, m_indexer, m_Hopper,  armOscillateCommand));
+    // m_operatorController.R1().whileTrue(new ShootCommand(() -> RPM.of(2900),  
+    // m_shooter, m_indexer, m_Hopper));
+    // m_operatorController.L1().whileTrue(new ShootCommand(() -> RPM.of(2500),  
+    // m_shooter, m_indexer, m_Hopper));
+    m_operatorController.R2().whileTrue(Shoot());
+    m_operatorController.L2().whileTrue(ShootTWO());
+    m_operatorController.R1().whileTrue(ShootTHREE());
+    m_operatorController.L1().whileTrue(ShootFOUR());
+    // m_operatorController.L2().whileTrue(new ShootCommand(() -> RPM.of(3300),  
+    // m_shooter, m_indexer, m_Hopper, armOscillateCommand));
 
-    // //m_operatorController.button(3).whileTrue(m_CommandTrain.armOscillate());
+    m_operatorController.circle().whileTrue(m_CommandTrain.armOscillate());
     m_operatorController.triangle().whileTrue(m_CommandTrain.Intaking());
+    m_operatorController.povUp().whileTrue(m_arm.setAngle(COMMAND_TRAIN_CONSTANTS.SAFE_ANGLE));
     // //m_operatorController.R2().whileTrue(m_CommandTrain.shoot());
      m_operatorController.square().whileTrue(m_CommandTrain.throwup());
     m_operatorController.cross().onTrue(m_CommandTrain.mixer());
     // //m_operatorController.L1().onFalse(m_arm.setAngle(Degrees.of(235)));
     driverController.cross().onTrue((Commands.runOnce(drivebase::zeroGyro)));
+    //m_operatorController.R1().whileTrue(arm.set(0.1));
+    //m_operatorController.L1().whileTrue(arm.set(-0.1));
 
     // m_operatorController.button(3).onTrue(new AutoShoot(()->RPM.of(3000), 
     //                                   m_shooter, m_indexer, m_Hopper, 7));

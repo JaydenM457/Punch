@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.HopperSubsytem;
@@ -15,16 +16,20 @@ public class ShootCommand extends Command
 
     private ShooterSubsystem shooter;
     private IndexerSubsystem indexer;
+    private Command armOscillateCommand;
+    //private Command mixer;
     private HopperSubsytem Hopper;
     private Supplier<AngularVelocity> setpoint;
     
 
-    public ShootCommand(Supplier<AngularVelocity> shootSpeed, ShooterSubsystem shooter, IndexerSubsystem indexer, HopperSubsytem Hopper)
+    public ShootCommand(Supplier<AngularVelocity> shootSpeed, ShooterSubsystem shooter, IndexerSubsystem indexer, HopperSubsytem Hopper, Command armOscillate)
     {
         this.shooter = shooter;
         this.indexer = indexer;
         this.Hopper = Hopper;
         setpoint = shootSpeed;
+         this.armOscillateCommand = armOscillate;
+        //this.mixer = mixer;
         addRequirements(shooter, indexer, Hopper);
     }
     
@@ -36,6 +41,9 @@ public class ShootCommand extends Command
   public void initialize()
   {
     shooter.setMechanismVelocitySetpoint(setpoint.get());
+    //CommandScheduler.getInstance().schedule(mixer);
+
+    
   }
 
   /**
@@ -48,8 +56,11 @@ public class ShootCommand extends Command
     shooter.setMechanismVelocitySetpoint(setpoint.get());
     if (shooter.getVelocity().in(RPM) >= setpoint.get().in(RPM) * 0.95)
     {
+      //CommandScheduler.getInstance().cancel(mixer);
+      
         indexer.setduty(-1);
         Hopper.setduty(-1);
+        CommandScheduler.getInstance().schedule(armOscillateCommand);
     }else{
         indexer.setduty(0);
         Hopper.setduty(0);
@@ -85,6 +96,8 @@ public class ShootCommand extends Command
   @Override
   public void end(boolean interrupted)
   {
+ 
+    CommandScheduler.getInstance().cancel(armOscillateCommand);
     shooter.setduty(0);
   }
 }

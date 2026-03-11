@@ -37,10 +37,18 @@ public class AutoCommands {
 
     public Command Auto_Intaking(){
 
-        return //Arm.setAngleAndStop(COMMAND_TRAIN_CONSTANTS.DOWN_ANGLE)
-        //.andThen(
+        return Arm.setAngleAndStop(COMMAND_TRAIN_CONSTANTS.DOWN_ANGLE)
+        .andThen(
             Intake.set(INTAKING_COMMAND_CONSTANTS.INTAKE_INTAKE_SPEED)
-        .alongWith(Hopper.set(INTAKING_COMMAND_CONSTANTS.HOPPER_INTAKE_SPEED))//)
+        .alongWith(Hopper.set(INTAKING_COMMAND_CONSTANTS.HOPPER_INTAKE_SPEED)))
+        .beforeStarting(() -> SmartDashboard.putBoolean("AutoIntaking", true))
+        .finallyDo(interrupted -> SmartDashboard.putBoolean("AutoIntaking", false));
+    }
+        public Command Auto_Intaking_STOP(){
+
+        return 
+            Intake.set(0)
+        .alongWith(Hopper.set(0))
         .beforeStarting(() -> SmartDashboard.putBoolean("AutoIntaking", true))
         .finallyDo(interrupted -> SmartDashboard.putBoolean("AutoIntaking", false));
     }
