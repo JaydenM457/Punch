@@ -318,13 +318,13 @@ public class SwerveSubsystem extends SubsystemBase
       {
         var result = resultO.get();
 
-        ArrayList<PhotonTrackedTarget> bestTargets = camera.getClosestTargets(result); // Returns the top three closest targets or null if not found
+        ArrayList<PhotonTrackedTarget> closestTargets = camera.getClosestTargets(result); // Returns the top three closest targets or null if not found
 
-        if (bestTargets == null) {
+        if (closestTargets == null) {
           return;
         }
 
-        for (PhotonTrackedTarget target: bestTargets) {
+        for (PhotonTrackedTarget target: closestTargets) {
           if (target != null) {
             for (int aprilTagID: aprilTagIDs) {
               if (target.getFiducialId() == aprilTagID) {
@@ -344,13 +344,13 @@ public class SwerveSubsystem extends SubsystemBase
       {
         var result = resultO.get();
 
-        ArrayList<PhotonTrackedTarget> bestTargets = camera.getClosestTargets(result); // Returns the top two best targets or null if not found
+        ArrayList<PhotonTrackedTarget> closestTargets = camera.getClosestTargets(result); // Returns the top two best targets or null if not found
 
-        if (bestTargets == null) {
+        if (closestTargets == null) {
           return;
         }
 
-        for (PhotonTrackedTarget bestTarget: bestTargets) {
+        for (PhotonTrackedTarget bestTarget: closestTargets) {
           if (bestTarget != null) {
             if (bestTarget.getFiducialId() == nearestDesiredTargetID) {
               nearestDesiredTarget = bestTarget;
