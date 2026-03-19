@@ -40,6 +40,7 @@ public class ShootIntoHub extends Command
      * For each entry, the first value (k) represents the distance in meters from
      * the hub and the second value (v) represents the RPM needed
      * to accurately shoot into the hub at that distance.
+     * Format: Map.entry(distanceInMeters, RPM)
      */
     private InterpolatingDoubleTreeMap interpolatingMap = new InterpolatingDoubleTreeMap().ofEntries(
         Map.entry(1.8, 2600.0),

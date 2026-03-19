@@ -69,8 +69,6 @@ public class RobotContainer
   private final ShooterSubsystem m_shooter = new ShooterSubsystem();
   private final HopperSubsytem m_Hopper = new HopperSubsytem();
 
-  private final Command armOscillateCommand;
-
   // Systems (command factories)
   private final CommandTrain m_CommandTrain = new CommandTrain(
           m_arm,
@@ -78,6 +76,9 @@ public class RobotContainer
           m_intake,
            m_shooter, m_Hopper
   );
+
+  // private final Command armOscillateCommand = m_CommandTrain.armOscillate();
+  private final Command armOscillateCommand = m_CommandTrain.armOscillate();
 
     private final AutoCommands a_Commands = new AutoCommands(
           m_arm,
@@ -119,7 +120,6 @@ public class RobotContainer
             armOscillateCommand));
 }
 
-
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem       drivebase  = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                                                                                 "swerve/maxSwerve"));
@@ -136,6 +136,16 @@ public class RobotContainer
           Constants.redZoneHubCenterLeftTagID
         }
       );
+  private final Command shootIntoHubCommand = new ShootIntoHub(Cameras.LEFT_CAM, new int[]{Constants.blueZoneHubLeftTagID,
+          Constants.blueZoneHubRightTagID,
+          Constants.redZoneHubLeftTagID,
+          Constants.redZoneHubRightTagID,
+          Constants.blueZoneHubCenterTagID,
+          Constants.redZoneHubCenterTagID,
+          Constants.blueZoneHubCenterLeftTagID,
+          Constants.redZoneHubCenterLeftTagID
+        }, m_shooter, m_indexer, m_Hopper, drivebase, armOscillateCommand);
+  
   private final Command aimAtTargetAutoCommand = drivebase.aimAtTarget(Cameras.LEFT_CAM, AutonConstants.aimAtTargetID, false);
   private final Command driveToTargetCommand = drivebase.driveToPose(
     drivebase.getVision().getAprilTagPose(AutonConstants.aimAtTargetID, new Transform2d(2, -0.50, new Rotation2d())));
@@ -183,7 +193,6 @@ public class RobotContainer
 
   public RobotContainer()
   {
-  armOscillateCommand = m_CommandTrain.armOscillate();
   //mixer = m_CommandTrain.mixer();
 
   m_indexer.setDefaultCommand(m_indexer.set(0));
@@ -217,15 +226,7 @@ public class RobotContainer
     autChooser.addOption("Aim at Target Command", aimAtTargetAutoCommand);
     autChooser.addOption("Drive to AprilTag", driveToTargetCommand);
     // autChooser.addOption("Test_One PathPlanner Command", drivebase.getAutonomousCommand("Test_One"));
-    autChooser.addOption("Aim at Hub and Shoot", new ParallelCommandGroup(aimAtHubCommand, new ShootIntoHub(Cameras.LEFT_CAM, new int[]{Constants.blueZoneHubLeftTagID,
-          Constants.blueZoneHubRightTagID,
-          Constants.redZoneHubLeftTagID,
-          Constants.redZoneHubRightTagID,
-          Constants.blueZoneHubCenterTagID,
-          Constants.redZoneHubCenterTagID,
-          Constants.blueZoneHubCenterLeftTagID,
-          Constants.redZoneHubCenterLeftTagID
-        }, m_shooter, m_indexer, m_Hopper, drivebase, armOscillateCommand))
+    autChooser.addOption("Aim at Hub and Shoot", new ParallelCommandGroup(aimAtHubCommand, shootIntoHubCommand)
       .withTimeout(5));
 
     // autChooser.addOption("Scoring Position Path", drivebase.getAutonomousCommand("ScoringPosition"));
@@ -312,18 +313,7 @@ public class RobotContainer
 
     // Aim and shoot at the hub
     // driverController.R3().whileTrue(
-    //   new ParallelCommandGroup(drivebase.aimAtNearestTag(Cameras.LEFT_CAM, 
-    //   new int[]{Constants.blueZoneHubLeftTagID,
-    //     Constants.blueZoneHubRightTagID,
-    //     Constants.redZoneHubLeftTagID,
-    //     Constants.redZoneHubRightTagID,
-    //     Constants.blueZoneHubCenterTagID,
-    //     Constants.redZoneHubCenterTagID,
-    //     Constants.blueZoneHubCenterLeftTagID,
-    //     Constants.redZoneHubCenterLeftTagID
-    //   }
-    // ), new AutoShoot(()->RPM.of(2500), 
-    //                                 m_shooter, m_indexer, m_Hopper, 3, armOscillateCommand)));
+    //   new ParallelCommandGroup(aimAtHubCommand, shootIntoHubCommand));
 
 
     Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
