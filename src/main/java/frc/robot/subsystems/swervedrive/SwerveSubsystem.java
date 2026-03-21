@@ -271,10 +271,12 @@ public class SwerveSubsystem extends SubsystemBase
                   Constants.aprilTagAimingPID_kP,
                   Constants.aprilTagAimingPID_kI, 
                   Constants.aprilTagAimingPID_kD);
+          
+          pid.enableContinuousInput(-180, 180);
 
           double pidCalculation = pid.calculate(swerveDrive.getYaw().getDegrees(), desiredTarget.getYaw());
           
-          double turnAngle = -1 * pidCalculation;
+          double turnAngle = pidCalculation;
 
           SmartDashboard.putNumber("Aiming at AprilTag", desiredTarget.getFiducialId());
 
@@ -372,9 +374,11 @@ public class SwerveSubsystem extends SubsystemBase
               Constants.aprilTagAimingPID_kI, 
               Constants.aprilTagAimingPID_kD);
 
+              pid.enableContinuousInput(-180, 180);
+
               double pidCalculation = pid.calculate(swerveDrive.getYaw().getDegrees(), nearestDesiredTarget.getYaw());
               
-              double turnAngle = -1 * pidCalculation;
+              double turnAngle = pidCalculation;
 
               SmartDashboard.putNumber("Aiming at AprilTag", nearestDesiredTarget.getFiducialId());
 
