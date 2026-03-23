@@ -8,12 +8,16 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Rotations;
 
+import java.util.Map;
+
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import swervelib.math.Matter;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean constants. This
@@ -25,7 +29,73 @@ import swervelib.math.Matter;
  */
 public final class Constants
 {
-  public static double estimateNoteSpeedMps(double shooterRPM) {
+  
+  
+  
+
+public static final Rotation2d FERRY_LEFT_CORNER_HEADING_BLUE = Rotation2d.fromDegrees(160.0);
+public static final Rotation2d FERRY_RIGHT_CORNER_HEADING_BLUE = Rotation2d.fromDegrees(-160.0);
+
+public static final Rotation2d FERRY_LEFT_CORNER_HEADING_RED = Rotation2d.fromDegrees(160);
+public static final Rotation2d FERRY_RIGHT_CORNER_HEADING_RED = Rotation2d.fromDegrees(-160);
+
+public static final double FERRY_HEADING_TOLERANCE_DEG = 2.0;
+public static final double FERRY_SHOOTER_READY_FRACTION = 0.97;
+
+public enum FerrySide {
+  LEFT_BACK,
+  RIGHT_BACK
+}
+
+public static final double FIELD_LENGTH_METERS = 8.1026;
+
+/**
+ * Distance from the alliance wall / driver station side to the robot, in meters.
+ * Assumes blue alliance is at X = 0 and red alliance is at X = FIELD_LENGTH_METERS.
+ */
+public static double getDistanceFromDriverStationWall(double robotX, boolean isRedAlliance) {
+  return isRedAlliance
+      ? FIELD_LENGTH_METERS - robotX
+      : robotX;
+}
+
+public static final InterpolatingDoubleTreeMap FERRY_RPM_MAP = new InterpolatingDoubleTreeMap();
+
+static {
+  // distance from driverstation wall -> shooter rpm
+  // EXAMPLE VALUES ONLY, tune these on robot
+  FERRY_RPM_MAP.put(1.0, 2600.0);
+  FERRY_RPM_MAP.put(2.0, 3000.0);
+  FERRY_RPM_MAP.put(3.0, 3350.0);
+  FERRY_RPM_MAP.put(4.0, 3650.0);
+  FERRY_RPM_MAP.put(5.0, 3950.0);
+  FERRY_RPM_MAP.put(6.0, 4250.0);
+}
+public static final InterpolatingDoubleTreeMap HubRPM = new InterpolatingDoubleTreeMap();
+
+static {
+  HubRPM.put(1.8, 2600.0);
+  HubRPM.put(1.9, 2700.0);
+  HubRPM.put(2.0, 2800.0);
+  HubRPM.put(2.1, 2900.0);
+  HubRPM.put(2.2, 3000.0);
+  HubRPM.put(2.5, 3300.0);
+  HubRPM.put(2.8, 3600.0);
+  HubRPM.put(2.9, 3700.0);
+  HubRPM.put(3.0, 3800.0);
+  HubRPM.put(3.1, 3900.0);
+}
+
+public static double getHubRPM(double distanceFromHubMeters) {
+  return HubRPM.get(distanceFromHubMeters);
+}
+public static double getFerryRPM(double distanceFromDriverStationMeters) {
+  return FERRY_RPM_MAP.get(distanceFromDriverStationMeters);
+}
+
+
+
+  public static double estimateBallSpeedMps(double shooterRPM) {
   return 3.25 + 0.00205 * shooterRPM;
 }
 

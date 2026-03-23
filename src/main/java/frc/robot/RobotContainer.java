@@ -37,6 +37,7 @@ import frc.robot.commands.AutoShoot;
 import frc.robot.commands.ShootIntoHub;
 import frc.robot.commands.ShootOnTheMoveAim;
 import frc.robot.commands.CommandTrain;
+import frc.robot.commands.FerryShot;
 import frc.robot.commands.ShootCommand;
 //import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
@@ -270,6 +271,27 @@ public class RobotContainer
     m_operatorController.cross().onTrue(m_CommandTrain.mixer());
     driverController.square().whileTrue(new AlignToHubAndShoot(drivebase, m_shooter, m_indexer, m_Hopper, (java.util.function.DoubleSupplier) driverController::getLeftX, (java.util.function.DoubleSupplier) driverController::getLeftY));
     driverController.cross().onTrue((Commands.runOnce(drivebase::zeroGyro)));
+    driverController.L1().whileTrue(
+    new FerryShot(
+        drivebase,
+        m_shooter,
+        m_indexer,
+        m_Hopper,
+        () -> driverController.getLeftY(),
+        () -> driverController.getLeftX(),
+        () -> Constants.FerrySide.LEFT_BACK,
+        () -> driverController.R1().getAsBoolean()));
+
+driverController.L2().whileTrue(
+    new FerryShot(
+        drivebase,
+        m_shooter,
+        m_indexer,
+        m_Hopper,
+        () -> driverController.getLeftY(),
+        () -> driverController.getLeftX(),
+        () -> Constants.FerrySide.RIGHT_BACK,
+        () -> driverController.R1().getAsBoolean()));
     // new Trigger(() -> 
     //     m_operatorController.L1().getAsBoolean() || 
     //     m_operatorController.L2().getAsBoolean() ||
