@@ -405,7 +405,7 @@ driverController.L2().whileTrue(
     } else
     {
       //driverController.cross().onTrue((Commands.runOnce(drivebase::zeroGyro)));
-      driverController.square().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
+      // driverController.square().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
       driverController.circle().whileTrue(
           drivebase.driveToPose(
               new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))
@@ -426,7 +426,8 @@ driverController.L2().whileTrue(
               m_indexer,
               m_Hopper,
               () -> -driverController.getLeftY(),
-              () -> -driverController.getLeftX()));
+              () -> -driverController.getLeftX(),
+              () -> driverController.R1().getAsBoolean()));
             
           }
 

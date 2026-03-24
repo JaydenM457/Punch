@@ -30,8 +30,72 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 public final class Constants
 {
   
-  
-  
+// Shot geometry - tune these
+public static final double SHOOTER_HEIGHT_METERS = 0.72;
+public static final double HUB_CENTER_HEIGHT_METERS = 2.10;
+public static final double SHOT_LAUNCH_ANGLE_DEG = 52.0;
+
+// Release prediction / motion compensation
+public static final double RELEASE_LOOKAHEAD_SECS = 0.060;
+public static final double MEASURED_VELOCITY_WEIGHT = 0.70;
+
+public static final double HUB_MAX_OMEGA_RAD_PER_SEC = 8.0;
+public static final double HUB_HEADING_TOLERANCE_DEG_WITH_TAG = 1.0;
+public static final double HUB_HEADING_TOLERANCE_DEG_NO_TAG = 2.0;
+
+public static final double NOTE_EXIT_MPS_PER_RPM = 0.00210;
+public static final double NOTE_EXIT_MPS_OFFSET = 1.90;
+
+// Optional clamp
+public static final double MIN_SHOOTER_RPM = 1000.0;
+public static final double MAX_SHOOTER_RPM = 5200.0;
+
+public static double HUB_THETA_KP = 0.03;
+public static double HUB_THETA_KI = 0.0;
+public static double HUB_THETA_KD = 0.0025;
+
+public static double noteExitSpeedFromRPM(double rpm) {
+  return NOTE_EXIT_MPS_OFFSET + NOTE_EXIT_MPS_PER_RPM * rpm;
+}
+
+public static double rpmFromNoteExitSpeed(double speedMps) {
+  double rpm = (speedMps - NOTE_EXIT_MPS_OFFSET) / NOTE_EXIT_MPS_PER_RPM;
+  return Math.max(MIN_SHOOTER_RPM, Math.min(MAX_SHOOTER_RPM, rpm));
+}
+
+public static final InterpolatingDoubleTreeMap SHOT_RPM_MAP = new InterpolatingDoubleTreeMap();
+public static final InterpolatingDoubleTreeMap SHOT_TOF_MAP = new InterpolatingDoubleTreeMap();
+
+static {
+  // distance (m) -> shooter RPM
+  SHOT_RPM_MAP.put(1.8, 2600.0);
+  SHOT_RPM_MAP.put(1.9, 2700.0);
+  SHOT_RPM_MAP.put(2.0, 2800.0);
+  SHOT_RPM_MAP.put(2.1, 2900.0);
+  SHOT_RPM_MAP.put(2.2, 3000.0);
+  SHOT_RPM_MAP.put(2.5, 3300.0);
+  SHOT_RPM_MAP.put(2.8, 3600.0);
+  SHOT_RPM_MAP.put(2.9, 3700.0);
+  SHOT_RPM_MAP.put(3.0, 3800.0);
+  SHOT_RPM_MAP.put(3.1, 3900.0);
+  // distance (m) -> NOTE FLIGHT TIME AFTER RELEASE (s)
+  SHOT_TOF_MAP.put(1.0, 0.18);
+  SHOT_TOF_MAP.put(1.5, 0.23);
+  SHOT_TOF_MAP.put(2.0, 0.29);
+  SHOT_TOF_MAP.put(2.5, 0.35);
+  SHOT_TOF_MAP.put(3.0, 0.42);
+  SHOT_TOF_MAP.put(3.5, 0.49);
+  SHOT_TOF_MAP.put(4.0, 0.57);
+}
+
+public static double getShotRPM(double distanceMeters) {
+  return SHOT_RPM_MAP.get(distanceMeters);
+}
+
+public static double getShotTimeOfFlight(double distanceMeters) {
+  return SHOT_TOF_MAP.get(distanceMeters);
+}
+
 
 public static final Rotation2d FERRY_LEFT_CORNER_HEADING_BLUE = Rotation2d.fromDegrees(160.0);
 public static final Rotation2d FERRY_RIGHT_CORNER_HEADING_BLUE = Rotation2d.fromDegrees(-160.0);
