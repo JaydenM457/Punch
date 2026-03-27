@@ -342,12 +342,22 @@ public class SwerveSubsystem extends SubsystemBase
         if (closestTargets == null) {
           return;
         }
-
+        // TODO: Let the nearestDesiredTarget equal the aprilTagIDForEstimatedRotation if estimating the rotation
         for (PhotonTrackedTarget target: closestTargets) {
           if (target != null) {
+            int targetID = target.getFiducialId();
+
+            if (aprilTagIDForEstimatedRotation == targetID) {
+              nearestDesiredTargetID = aprilTagIDForEstimatedRotation;
+              return;
+            }
+            else if (aprilTagIDForEstimatedRotation != -1 && aprilTagIDForEstimatedRotation != targetID) {
+              continue;
+            }
+
             for (int aprilTagID: aprilTagIDs) {
-              if (target.getFiducialId() == aprilTagID) {
-                nearestDesiredTargetID = target.getFiducialId();
+              if (targetID == aprilTagID) {
+                nearestDesiredTargetID = targetID;
                 return;
               }
             }
