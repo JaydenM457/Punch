@@ -151,8 +151,8 @@ public class RobotContainer
         }, m_shooter, m_indexer, m_Hopper, drivebase, armOscillateCommand);
   
   private final Command aimAtTargetAutoCommand = drivebase.aimAtTarget(Cameras.LEFT_CAM, AutonConstants.aimAtTargetID, false);
-  private final Command driveToTargetCommand = drivebase.driveToPose(
-    drivebase.getVision().getAprilTagPose(AutonConstants.aimAtTargetID, new Transform2d(2, -0.50, new Rotation2d())));
+  // Do Not Use: private final Command driveToTargetCommand = drivebase.driveToPose(
+  //   drivebase.getVision().getAprilTagPose(AutonConstants.aimAtTargetID, new Transform2d(2, -0.50, new Rotation2d())));
 
 
   // /**
@@ -232,9 +232,9 @@ public class RobotContainer
     autChooser = AutoBuilder.buildAutoChooser("MiddleAuto");
     NamedCommands.registerCommand("Aim at Target Command", aimAtTargetAutoCommand);
     autChooser.addOption("Aim at Target Command", aimAtTargetAutoCommand);
-    autChooser.addOption("Drive to AprilTag", driveToTargetCommand);
+
     // autChooser.addOption("Test_One PathPlanner Command", drivebase.getAutonomousCommand("Test_One"));
-    autChooser.addOption("Aim at Hub and Shoot", aimAtHubCommand);
+    autChooser.addOption("Aim at Hub", aimAtHubCommand);
 
     // autChooser.addOption("Scoring Position Path", drivebase.getAutonomousCommand("ScoringPosition"));
     SmartDashboard.putData("Auto Chooser",autChooser);

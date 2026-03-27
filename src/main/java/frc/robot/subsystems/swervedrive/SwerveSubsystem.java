@@ -273,27 +273,18 @@ public class SwerveSubsystem extends SubsystemBase
         var result = resultO.get();
 
         PhotonTrackedTarget desiredTarget = camera.getTarget(result, targetID);
-        SmartDashboard.putBoolean("AprilTag " + targetID + " in Field of View:", desiredTarget != null);
 
         if (result.hasTargets() && desiredTarget != null) {
-          PIDController pid = new PIDController(
-                  Constants.aprilTagAimingPID_kP,
-                  Constants.aprilTagAimingPID_kI, 
-                  Constants.aprilTagAimingPID_kD);
-          
-          pid.enableContinuousInput(-180, 180);
+          Pose2d robotPose = getSwerveDrive().getPose();
+          Rotation2d robotPoseRotation = robotPose.getRotation();
 
-          double pidCalculation = pid.calculate(swerveDrive.getYaw().getDegrees(), desiredTarget.getYaw());
-          
-          double turnAngle = -pidCalculation;
+          Rotation2d aprilTagFieldRotation = robotPoseRotation.minus(Rotation2d.fromDegrees(desiredTarget.getYaw()));
 
           SmartDashboard.putNumber("Aiming at AprilTag", desiredTarget.getFiducialId());
 
           drive(getTargetSpeeds(0,
                               0,
-                              Rotation2d.fromDegrees(turnAngle)));
-          
-          pid.close();
+                              aprilTagFieldRotation));
         }
         else {
           drive(getTargetSpeeds(0,
