@@ -25,6 +25,7 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -93,6 +94,7 @@ public class SwerveSubsystem extends SubsystemBase
   private PhotonTrackedTarget nearestDesiredTarget = null;
   private int nearestDesiredTargetID = -1;
   private int aprilTagIDForEstimatedRotation = -1;
+  private Optional<Rotation2d> robotToAprilTagRotationWithOffset = Optional.empty();
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -283,13 +285,23 @@ public class SwerveSubsystem extends SubsystemBase
           Pose2d robotPose = getSwerveDrive().getPose();
           Rotation2d robotPoseRotation = robotPose.getRotation();
 
-          Rotation2d robotToAprilTagRotation = robotPoseRotation.minus(Rotation2d.fromDegrees(desiredTarget.getYaw()));
+          if (robotToAprilTagRotationWithOffset.isEmpty()) {
+                Transform3d robotToCameraTransform = camera.poseEstimator.getRobotToCameraTransform();
+                Transform3d cameraToTagTransform = nearestDesiredTarget.getBestCameraToTarget();
+
+                Translation2d robotToCameraTranslation = robotToCameraTransform.getTranslation().toTranslation2d();
+                Translation2d cameraToTagTranslation = cameraToTagTransform.getTranslation().toTranslation2d();
+
+                Translation2d robotToTagTranslation = cameraToTagTranslation.plus(robotToCameraTranslation);
+
+                robotToAprilTagRotationWithOffset =  Optional.of(robotPoseRotation.plus(robotToTagTranslation.getAngle()));
+          }
 
           SmartDashboard.putNumber("Aiming at AprilTag", desiredTarget.getFiducialId());
 
           drive(getTargetSpeeds(0,
                               0,
-                              robotToAprilTagRotation));
+                              robotToAprilTagRotationWithOffset.get()));
         }
         else {
           drive(getTargetSpeeds(0,
@@ -318,7 +330,9 @@ public class SwerveSubsystem extends SubsystemBase
         }
       }
       return false;
-      }).finallyDo(() -> {SmartDashboard.putNumber("Aiming at AprilTag", -1);});
+      }).finallyDo(() -> {
+        robotToAprilTagRotationWithOffset = Optional.empty();
+        SmartDashboard.putNumber("Aiming at AprilTag", -1);});
   }
 
   /*
@@ -399,13 +413,25 @@ public class SwerveSubsystem extends SubsystemBase
               Pose2d robotPose = getSwerveDrive().getPose();
               Rotation2d robotPoseRotation = robotPose.getRotation();
 
-              Rotation2d robotToAprilTagRotation = robotPoseRotation.minus(Rotation2d.fromDegrees(nearestDesiredTarget.getYaw()));
+              if (robotToAprilTagRotationWithOffset.isEmpty()) {
+                Transform3d robotToCameraTransform = camera.poseEstimator.getRobotToCameraTransform();
+                Transform3d cameraToTagTransform = nearestDesiredTarget.getBestCameraToTarget();
+
+                Translation2d robotToCameraTranslation = robotToCameraTransform.getTranslation().toTranslation2d();
+                Translation2d cameraToTagTranslation = cameraToTagTransform.getTranslation().toTranslation2d();
+
+                Translation2d robotToTagTranslation = cameraToTagTranslation.plus(robotToCameraTranslation);
+
+                robotToAprilTagRotationWithOffset =  Optional.of(robotPoseRotation.plus(robotToTagTranslation.getAngle()));
+              }
+
+              // Rotation2d robotToAprilTagRotation = robotPoseRotation.minus(Rotation2d.fromDegrees(nearestDesiredTarget.getYaw()));
 
               SmartDashboard.putNumber("Aiming at AprilTag", nearestDesiredTarget.getFiducialId());
 
               drive(getTargetSpeeds(0,
                                   0,
-                                  robotToAprilTagRotation));
+                                  robotToAprilTagRotationWithOffset.get()));
               
               return;
             }
@@ -424,6 +450,7 @@ public class SwerveSubsystem extends SubsystemBase
      )).finallyDo(() -> {
       nearestDesiredTargetID = -1;
       aprilTagIDForEstimatedRotation = -1;
+      robotToAprilTagRotationWithOffset = Optional.empty();
       SmartDashboard.putNumber("Aiming at AprilTag", nearestDesiredTargetID);});
   }
 
