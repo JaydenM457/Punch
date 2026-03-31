@@ -23,6 +23,7 @@ public class AutoCommands {
     private IntakeSubsystem Intake;
     private ShooterSubsystem Shooter;
     private HopperSubsytem Hopper;
+    
 
     public AutoCommands(ArmSubsystem Arm,
      IndexerSubsystem Indexer, 
@@ -34,7 +35,6 @@ public class AutoCommands {
         this.Hopper = Hopper;
 
     }
-
 
 
     public Command Auto_Intaking(){
@@ -56,32 +56,34 @@ public class AutoCommands {
 
     }
     
-    public Command shoot(){ 
-        return Shooter.setVelocity(SHOOTER_SPEED.SIDE_TRENCH_VELOCITY).withTimeout(1.5)
-        // .alongWith(Indexer.set(-1).withTimeout(1)) 
-        .andThen(Shooter.setVelocity(SHOOTER_SPEED.SIDE_TRENCH_VELOCITY)
-            .alongWith(Indexer.set(-1)) 
-            .alongWith(Hopper.set(-1))).withTimeout(6);
-    }
+    // public Command shoot(){ 
+    //     return Shooter.setVelocity(SHOOTER_SPEED.SIDE_TRENCH_VELOCITY).withTimeout(1.5)
+    //     // .alongWith(Indexer.set(-1).withTimeout(1)) 
+    //     .andThen(Shooter.setVelocity(SHOOTER_SPEED.SIDE_TRENCH_VELOCITY)
+    //         .alongWith(Indexer.set(-1)) 
+    //         .alongWith(Hopper.set(-1))
+    //         .alongWith(Intake.set(-0.8))
+    //         .alongWith()).withTimeout(6);
+    // }
 
-        public Command shoot_Corrner(){ 
-        return Shooter.setVelocity(SHOOTER_SPEED.CORRNER_VELOCITY).withTimeout(1.5)
-        // .alongWith(Indexer.set(-1).withTimeout(1)) 
-        .andThen(Shooter.setVelocity(SHOOTER_SPEED.CORRNER_VELOCITY)
-            .alongWith(Indexer.set(-1)) 
-            .alongWith(Hopper.set(-1))).withTimeout(6);
+    //     public Command shoot_Corrner(){ 
+    //     return Shooter.setVelocity(SHOOTER_SPEED.CORRNER_VELOCITY).withTimeout(1.5)
+    //     // .alongWith(Indexer.set(-1).withTimeout(1)) 
+    //     .andThen(Shooter.setVelocity(SHOOTER_SPEED.CORRNER_VELOCITY)
+    //         .alongWith(Indexer.set(-1)) 
+    //         .alongWith(Hopper.set(-1))).withTimeout(6);
         
 
-    }
-            public Command shoot_strait(){ 
-        return Shooter.setVelocity(RPM.of(2300)).withTimeout(1.5)
-        // .alongWith(Indexer.set(-1).withTimeout(1)) 
-        .andThen(Shooter.setVelocity(RPM.of(2300))
-            .alongWith(Indexer.set(-1)) 
-            .alongWith(Hopper.set(-1))).withTimeout(6);
+    // }
+    //         public Command shoot_strait(){ 
+    //     return Shooter.setVelocity(RPM.of(2300)).withTimeout(1.5)
+    //     // .alongWith(Indexer.set(-1).withTimeout(1)) 
+    //     .andThen(Shooter.setVelocity(RPM.of(2300))
+    //         .alongWith(Indexer.set(-1)) 
+    //         .alongWith(Hopper.set(-1))).withTimeout(6);
         
 
-    }
+    // }
     
 
 

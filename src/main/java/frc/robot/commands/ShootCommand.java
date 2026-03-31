@@ -18,23 +18,30 @@ public class ShootCommand extends Command
     private ShooterSubsystem shooter;
     private IndexerSubsystem indexer;
     private Command armOscillateCommand;
-    //private Command mixer;
-    private HopperSubsytem Hopper;
+    private Command PULSE;
+    //private HopperSubsytem Hopper;
     private Supplier<AngularVelocity> setpoint;
     private IntakeSubsystem Intake;
     
 
-    public ShootCommand(Supplier<AngularVelocity> shootSpeed, ShooterSubsystem shooter, IndexerSubsystem indexer, HopperSubsytem Hopper, IntakeSubsystem Intake, Command armOscillate
+    public ShootCommand(Supplier<AngularVelocity> shootSpeed, 
+                        ShooterSubsystem shooter, 
+                        IndexerSubsystem indexer, 
+                        //HopperSubsytem Hopper, 
+                        IntakeSubsystem Intake, 
+                        Command armOscillate,
+                        Command PULSE
     )
     {
         this.shooter = shooter;
         this.indexer = indexer;
-        this.Hopper = Hopper;
+        //this.Hopper = Hopper;
         this.Intake = Intake;
         setpoint = shootSpeed;
         this.armOscillateCommand = armOscillate;
-        //this.mixer = mixer;
-        addRequirements(shooter, indexer, Hopper, Intake);
+        this.PULSE = PULSE;
+        addRequirements(shooter, indexer, //Hopper,
+         Intake);
     }
     
     
@@ -45,7 +52,7 @@ public class ShootCommand extends Command
   public void initialize()
   {
     shooter.setMechanismVelocitySetpoint(setpoint.get());
-    //CommandScheduler.getInstance().schedule(mixer);
+    //CommandScheduler.getInstance().schedule(Disrupter);
 
     
   }
@@ -60,16 +67,21 @@ public class ShootCommand extends Command
     shooter.setMechanismVelocitySetpoint(setpoint.get());
     if (shooter.getVelocity().in(RPM) >= setpoint.get().in(RPM) * 0.95)
     {
-      //CommandScheduler.getInstance().cancel(mixer);
+      //CommandScheduler.getInstance().cancel(Disrupter);
       
         indexer.setduty(-1);
-        Hopper.setduty(-1);
-        Intake.set(-0.5);
-        CommandScheduler.getInstance().schedule(armOscillateCommand);
+        //Hopper.setduty(-1);
+        Intake.setduty(-0.8);
+        if (!CommandScheduler.getInstance().isScheduled(armOscillateCommand)) {
+          CommandScheduler.getInstance().schedule(armOscillateCommand);
+        }
+        
+          CommandScheduler.getInstance().schedule(PULSE);
+        
     }else{
         indexer.setduty(0);
-        Hopper.setduty(0);
-        Intake.set(0);
+        //Hopper.setduty(0);
+        Intake.setduty(0);
     }
   }
 
@@ -105,5 +117,9 @@ public class ShootCommand extends Command
  
     CommandScheduler.getInstance().cancel(armOscillateCommand);
     shooter.setduty(0);
+    indexer.setduty(0);
+    //Hopper.setduty(0);
+    CommandScheduler.getInstance().cancel(PULSE);
+    
   }
 }

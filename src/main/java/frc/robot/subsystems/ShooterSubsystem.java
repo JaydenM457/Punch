@@ -90,7 +90,9 @@ public class ShooterSubsystem extends SubsystemBase {
     shooter.set(dutyCycle);
 }
 
-  public ShooterSubsystem() {}
+  public ShooterSubsystem() {
+    //setDefaultCommand(shooter.set(0));
+  }
 
   
 

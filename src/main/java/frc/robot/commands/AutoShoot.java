@@ -8,6 +8,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.IndexerSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.HopperSubsytem;
 import edu.wpi.first.wpilibj.Timer;
@@ -17,24 +18,34 @@ public class AutoShoot extends Command
 
     private ShooterSubsystem shooter;
     private IndexerSubsystem indexer;
+    private IntakeSubsystem Intake;
     //private Command armOscillateCommand;
     //private Command mixer;
     private HopperSubsytem Hopper;
     private Supplier<AngularVelocity> setpoint;
+    private double time;
     private Timer timer = new Timer();
     private boolean feeding = false;
     
 
-    public AutoShoot(Supplier<AngularVelocity> shootSpeed, ShooterSubsystem shooter, IndexerSubsystem indexer, HopperSubsytem Hopper//, Command armOscillate
+    public AutoShoot(Supplier<AngularVelocity> shootSpeed, 
+                     ShooterSubsystem shooter, 
+                     IndexerSubsystem indexer, 
+                     HopperSubsytem Hopper, 
+                     IntakeSubsystem Intake, 
+                     //Command armOscillate,
+                     double time
     )
     {
         this.shooter = shooter;
         this.indexer = indexer;
         this.Hopper = Hopper;
+        this.Intake = Intake;
         setpoint = shootSpeed;
-         //this.armOscillateCommand = armOscillate;
+        this.time = time;
+        //this.armOscillateCommand = armOscillate;
         //this.mixer = mixer;
-        addRequirements(shooter, indexer, Hopper);
+        addRequirements(shooter, indexer, Hopper, Intake);
     }
     
     
@@ -59,7 +70,9 @@ public class AutoShoot extends Command
 @Override
 public void execute()
 {
+    //CommandScheduler.getInstance().cancel(shooter.getDefaultCommand());
     shooter.setMechanismVelocitySetpoint(setpoint.get());
+
 
     if (shooter.getVelocity().in(RPM) >= setpoint.get().in(RPM) * 0.95)
     {
@@ -68,14 +81,17 @@ public void execute()
             timer.start();   // start timing ONLY once we hit speed
             feeding = true;
         }
-
+        //shooter.setMechanismVelocitySetpoint(setpoint.get());
         indexer.setduty(-1);
         Hopper.setduty(-1);
+        Intake.setduty(-0.8);
+        //CommandScheduler.getInstance().schedule(armOscillateCommand);
     }
     else
     {
         indexer.setduty(0);
         Hopper.setduty(0);
+        Intake.setduty(0);
     }
 }
 
@@ -95,7 +111,7 @@ public void execute()
   @Override
   public boolean isFinished()
   {
-    return feeding && timer.get() >= 3;
+    return feeding && timer.get() >= time;
   }
 
   /**
@@ -110,8 +126,9 @@ public void execute()
   {
  
     //CommandScheduler.getInstance().cancel(armOscillateCommand);
-    shooter.set(0);
-    indexer.set(0);
-    Hopper.set(0);
+    shooter.setduty(0);
+    indexer.setduty(0);
+    Hopper.setduty(0);
+    
     }
 }
