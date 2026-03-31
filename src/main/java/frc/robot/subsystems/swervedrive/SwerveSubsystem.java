@@ -179,7 +179,9 @@ public class SwerveSubsystem extends SubsystemBase
           Constants.blueZoneHubCenterLeftTagID,
           Constants.redZoneHubCenterLeftTagID
         }, true);
-
+      
+      SmartDashboard.putNumber("Robot Pose X:", getSwerveDrive().getPose().getX());
+      SmartDashboard.putNumber("Robot Pose Y", getSwerveDrive().getPose().getY());
     }
   }
 
@@ -349,10 +351,6 @@ public class SwerveSubsystem extends SubsystemBase
 
         ArrayList<PhotonTrackedTarget> closestTargets = camera.getClosestTargets(result, getVision()); // Returns the top three closest targets or null if not found
 
-        if (closestTargets == null) {
-          return;
-        }
-
         for (PhotonTrackedTarget target: closestTargets) {
           if (target != null) {
             int targetID = target.getFiducialId();
@@ -395,11 +393,7 @@ public class SwerveSubsystem extends SubsystemBase
       {
         var result = resultO.get();
 
-        ArrayList<PhotonTrackedTarget> closestTargets = camera.getClosestTargets(result, getVision()); // Returns the top two best targets or null if not found
-
-        if (closestTargets == null) {
-          return;
-        }
+        ArrayList<PhotonTrackedTarget> closestTargets = camera.getClosestTargets(result, getVision()); // Returns the top three or lower targets or an empty list if not found
 
         for (PhotonTrackedTarget bestTarget: closestTargets) {
           if (bestTarget != null) {
@@ -413,7 +407,8 @@ public class SwerveSubsystem extends SubsystemBase
               Transform3d cameraToTagTransform = nearestDesiredTarget.getBestCameraToTarget();
 
               Translation2d robotToCameraTranslation = robotToCameraTransform.getTranslation().toTranslation2d();
-              Translation2d cameraToTagTranslation = cameraToTagTransform.getTranslation().toTranslation2d();
+              Translation2d cameraToTagTranslation = cameraToTagTransform.getTranslation().toTranslation2d()
+                                                      .rotateBy(robotToCameraTransform.getRotation().toRotation2d());
 
               Translation2d robotToTagTranslation = cameraToTagTranslation.plus(robotToCameraTranslation);
 
@@ -434,11 +429,11 @@ public class SwerveSubsystem extends SubsystemBase
           
         }
         }
-        if (nearestDesiredTarget == null) {
-          drive(getTargetSpeeds(0,
-                              0,
-                              Rotation2d.fromDegrees(0)));
-        }
+        // if (nearestDesiredTarget == null) {
+        //   drive(getTargetSpeeds(0,
+        //                       0,
+        //                       Rotation2d.fromDegrees(0)));
+        // }
         
       }   
      )).finallyDo(() -> {
@@ -479,16 +474,13 @@ public class SwerveSubsystem extends SubsystemBase
 
       aprilTagIDForEstimatedRotation = closestAprilTag.getKey();
     }
-    else {
-      Pose2d closestAprilTagPose = aprilTagFieldLayout.getTagPose(aprilTagIDForEstimatedRotation).get().toPose2d();
-      Translation2d closestAprilTagPoseTranslation = closestAprilTagPose.getTranslation();
+  
+    Pose2d closestAprilTagPose = aprilTagFieldLayout.getTagPose(aprilTagIDForEstimatedRotation).get().toPose2d();
+    Translation2d closestAprilTagPoseTranslation = closestAprilTagPose.getTranslation();
 
-      Rotation2d robotToAprilTagRotation = closestAprilTagPoseTranslation.minus(robotPoseTranslation).getAngle();
+    Rotation2d robotToAprilTagRotation = closestAprilTagPoseTranslation.minus(robotPoseTranslation).getAngle();
 
-      return Optional.of(robotToAprilTagRotation);
-    }
-    
-    return Optional.empty();
+    return Optional.of(robotToAprilTagRotation);
   }
 
   /**

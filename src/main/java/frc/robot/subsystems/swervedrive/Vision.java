@@ -565,7 +565,7 @@ public class Vision
           return new ArrayList<PhotonTrackedTarget>(targets);
         }
       }
-    return null;
+    return new ArrayList<PhotonTrackedTarget>();
     }
 
     public double getDistanceToHub(Vision vision, int[] hubAprilTagIDs, boolean updateSmartDashboard) {
