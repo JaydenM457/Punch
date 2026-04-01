@@ -31,18 +31,45 @@ public final class Constants
   public static final double MAX_SPEED  = Units.feetToMeters(13.5);
   // Maximum speed of the robot in meters per second, used to limit acceleration.
 
-//  public static final class AutonConstants
-//  {
-//
-//    public static final PIDConstants TRANSLATION_PID = new PIDConstants(0.7, 0, 0);
-//    public static final PIDConstants ANGLE_PID       = new PIDConstants(0.4, 0, 0.01);
-//  }
+  // AprilTag IDs for Aiming at Hub
+  // The "right" or "left" of the hub is from the perspective of the blue or red alliance's zone.
+  
+  // These are the IDs of the AprilTags on the sides of the hubs (closest to the robot).
+  public static final int blueZoneHubRightTagID = 27;
+  public static final int blueZoneHubLeftTagID = 24;
+  public static final int redZoneHubRightTagID = 11;
+  public static final int redZoneHubLeftTagID = 8;
+
+  // These are the IDs of the AprilTags directly in the center of the hub in the blue or red alliance's zone (not in the neutral zone).
+  public static final int blueZoneHubCenterTagID = 26;
+  public static final int blueZoneHubCenterLeftTagID = 25;
+  public static final int redZoneHubCenterTagID = 10;
+  public static final int redZoneHubCenterLeftTagID = 9;
+
+  public static final int blueZoneOutpostCenterTagID = 29;
+  public static final int redZoneOutpostCenterTagID = 13;
+
+  public static final double aprilTagAimingPID_kP = 0.894;
+  public static final double aprilTagAimingPID_kI = 0.0;
+  public static final double aprilTagAimingPID_kD = 0.00222;
+
+
+ public static final class AutonConstants
+ {
+
+  //  public static final PIDConstants TRANSLATION_PID = new PIDConstants(0.7, 0, 0);
+  //  public static final PIDConstants ANGLE_PID       = new PIDConstants(0.4, 0, 0.01);
+  public static final int aimAtTargetID = 1;
+ }
 
   public static final class DrivebaseConstants
   {
 
     // Hold time on motor brakes when disabled
     public static final double WHEEL_LOCK_TIME = 10; // seconds
+
+
+
   }
 
   public static class OperatorConstants

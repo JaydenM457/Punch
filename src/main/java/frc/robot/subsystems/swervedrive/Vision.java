@@ -22,12 +22,15 @@ import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -56,7 +59,7 @@ public class Vision
    * April Tag Field Layout of the year.
    */
   public static final AprilTagFieldLayout fieldLayout                     = AprilTagFieldLayout.loadField(
-      AprilTagFields.k2026RebuiltAndymark);
+      AprilTagFields.k2026RebuiltWelded);
   /**
    * Ambiguity defined as a value between (0,1). Used in {@link Vision#filterPose}.
    */
@@ -100,7 +103,7 @@ public class Vision
         c.addToVisionSim(visionSim);
       }
 
-      openSimCameraViews();
+      // openSimCameraViews();
     }
   }
 
@@ -132,8 +135,8 @@ public class Vision
    */
   public void updatePoseEstimation(SwerveDrive swerveDrive)
   {
-    if (SwerveDriveTelemetry.isSimulation && swerveDrive.getSimulationDriveTrainPose().isPresent())
-    {
+    if (SwerveDriveTelemetry.isSimulation && swerveDrive.getSimulationDriveTrainPose().isPresent()) {
+    
       /*
        * In the maple-sim, odometry is simulated using encoder values, accounting for factors like skidding and drifting.
        * As a result, the odometry may not always be 100% accurate.
@@ -143,15 +146,18 @@ public class Vision
        */
       visionSim.update(swerveDrive.getSimulationDriveTrainPose().get());
     }
+    
     for (Cameras camera : Cameras.values())
     {
       Optional<EstimatedRobotPose> poseEst = getEstimatedGlobalPose(camera);
       if (poseEst.isPresent())
       {
+        System.out.println("I EXIST SHIT!");
         var pose = poseEst.get();
+        swerveDrive.field.getObject("Vision").setPose(pose.estimatedPose.toPose2d());
         swerveDrive.addVisionMeasurement(pose.estimatedPose.toPose2d(),
-                                         pose.timestampSeconds,
-                                         camera.curStdDevs);
+                                         pose.timestampSeconds
+);
       }
     }
 
@@ -336,35 +342,37 @@ public class Vision
   /**
    * Camera Enum to select each camera
    */
-  enum Cameras
+  public enum Cameras
   {
     /**
      * Left Camera
      */
-    LEFT_CAM("left",
-             new Rotation3d(0, Math.toRadians(-24.094), Math.toRadians(30)),
-             new Translation3d(Units.inchesToMeters(12.056),
-                               Units.inchesToMeters(10.981),
-                               Units.inchesToMeters(8.44)),
-             VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
-    /**
-     * Right Camera
-     */
-    RIGHT_CAM("right",
-              new Rotation3d(0, Math.toRadians(-24.094), Math.toRadians(-30)),
-              new Translation3d(Units.inchesToMeters(12.056),
-                                Units.inchesToMeters(-10.981),
-                                Units.inchesToMeters(8.44)),
-              VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
+    LEFT_CAM("left_camera",
+             new Rotation3d(0, Units.degreesToRadians(-22.5), 0),
+             new Translation3d(Units.inchesToMeters(10),
+                                Units.inchesToMeters(12),
+                                Units.inchesToMeters(15.5)),
+             VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
+
     /**
      * Center Camera
      */
-    CENTER_CAM("center",
-               new Rotation3d(0, Units.degreesToRadians(18), 0),
-               new Translation3d(Units.inchesToMeters(-4.628),
-                                 Units.inchesToMeters(-10.687),
-                                 Units.inchesToMeters(16.129)),
-               VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
+    // CENTER_CAM("center_camera",
+    //            new Rotation3d(0, 0, 180),
+    //            new Translation3d(0,
+    //                              0,
+    //                              Units.inchesToMeters(16)),
+    //            VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
+
+    /**
+     * Right Camera
+     */
+    // RIGHT_CAM("right",
+    //           new Rotation3d(0, Math.toRadians(-24.094), Math.toRadians(-30)),
+    //           new Translation3d(Units.inchesToMeters(12.056),
+    //                             Units.inchesToMeters(-10.981),
+    //                             Units.inchesToMeters(8.44)),
+    //           VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
 
     /**
      * Latency alert to use when high latency is detected.
@@ -390,6 +398,7 @@ public class Vision
      * Transform of the camera rotation and translation relative to the center of the robot
      */
     private final Transform3d                  robotToCamTransform;
+
     /**
      * Current standard deviations used.
      */
@@ -412,6 +421,7 @@ public class Vision
      */
     private       double                       lastReadTimestamp = Microseconds.of(NetworkTablesJNI.now()).in(Seconds);
 
+
     /**
      * Construct a Photon Camera class with help. Standard deviations are fake values, experiment and determine
      * estimation noise on an actual robot.
@@ -433,10 +443,10 @@ public class Vision
       robotToCamTransform = new Transform3d(robotToCamTranslation, robotToCamRotation);
 
       poseEstimator = new PhotonPoseEstimator(Vision.fieldLayout,
-                                              PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                                               robotToCamTransform);
       poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
-
+      poseEstimator.setFieldTags(Vision.fieldLayout);
+      
       this.singleTagStdDevs = singleTagStdDevs;
       this.multiTagStdDevs = multiTagStdDevsMatrix;
 
@@ -484,20 +494,115 @@ public class Vision
         return Optional.empty();
       }
 
-      PhotonPipelineResult bestResult       = resultsList.get(0);
-      double               amiguity         = bestResult.getBestTarget().getPoseAmbiguity();
+      PhotonPipelineResult bestResult = resultsList.get(0);
+      PhotonTrackedTarget bestTargetFromBestResult = bestResult.getBestTarget();
+
+      if (bestResult == null || bestTargetFromBestResult == null) {
+        // Prevents getPoseAmbiguity() from being called on a null bestTarget
+        return Optional.of(bestResult);
+      }
+
+      double               amiguity         = bestTargetFromBestResult.getPoseAmbiguity();
       double               currentAmbiguity = 0;
+      
       for (PhotonPipelineResult result : resultsList)
       {
-        currentAmbiguity = result.getBestTarget().getPoseAmbiguity();
-        if (currentAmbiguity < amiguity && currentAmbiguity > 0)
-        {
-          bestResult = result;
-          amiguity = currentAmbiguity;
+        PhotonTrackedTarget bestTargetFromResult = result.getBestTarget();
+        if (bestTargetFromResult != null) {
+          currentAmbiguity = bestTargetFromResult.getPoseAmbiguity();
+
+          if (currentAmbiguity < amiguity && currentAmbiguity > 0)
+          {
+            bestResult = result;
+            amiguity = currentAmbiguity;
+          }
+
         }
+        
       }
       return Optional.of(bestResult);
     }
+
+    public PhotonTrackedTarget getTarget(PhotonPipelineResult result, int targetID) {
+      for (PhotonTrackedTarget trackedTarget: result.getTargets()) {
+            if (trackedTarget.getFiducialId() == targetID) {
+              return trackedTarget;
+            }
+      }
+      return null;
+    }
+
+    public ArrayList<PhotonTrackedTarget> getClosestTargets(PhotonPipelineResult result, Vision vision) {
+      if (result.hasTargets()) {
+        List<PhotonTrackedTarget> targets = result.getTargets();
+
+        // TODO: Filter the targets list of tags in the opposite alliance and simply return the targets sorted by their area.
+        // TODO: Add tag ambiguity filtering such that in two very similar tag areas, the one with the least ambiguity is prioritized.
+
+        targets.sort(Comparator.comparing((PhotonTrackedTarget target) -> target.getArea()));
+        Collections.reverse(targets);
+        
+        if (targets.size() >= 2) {
+          double tagsAreaDifference = Math.abs(targets.get(0).getArea() - targets.get(1).getArea());
+          double firstTagDistance = vision.getDistanceFromAprilTag(targets.get(0).getFiducialId());
+          double secondTagDistance = vision.getDistanceFromAprilTag(targets.get(1).getFiducialId());
+
+          double areaDifferenceThreshold = targets.get(0).getArea() * 0.05;
+
+          // If the difference between the top two tags' area is less than 5% of the top one and the second tag is closer,
+          // then swap the first tag in the closest targets list with the second one.
+          if (tagsAreaDifference < areaDifferenceThreshold && secondTagDistance < firstTagDistance) {
+            PhotonTrackedTarget tempTarget = targets.get(0);
+            targets.set(0, targets.get(1));
+            targets.set(1, tempTarget);
+          }
+        }
+
+        if (targets.size() >= 3) {
+          return new ArrayList<PhotonTrackedTarget>(targets.subList(0, 3));
+        }
+        else {
+          return new ArrayList<PhotonTrackedTarget>(targets);
+        }
+      }
+    return new ArrayList<PhotonTrackedTarget>();
+    }
+
+    public double getDistanceToHub(Vision vision, int[] hubAprilTagIDs, boolean updateSmartDashboard) {
+      Optional<PhotonPipelineResult> resultO = LEFT_CAM.getBestResult();
+      
+      if (resultO.isPresent())
+      {
+        var result = resultO.get();
+
+        ArrayList<PhotonTrackedTarget> closestTargets = LEFT_CAM.getClosestTargets(result, vision); // Returns the top three closest targets or null if not found
+
+        if (closestTargets == null) {
+          return -1.0;
+        }
+
+        for (PhotonTrackedTarget target: closestTargets) {
+          if (target != null) {
+            for (int aprilTagID: hubAprilTagIDs) {
+              if (target.getFiducialId() == aprilTagID) {
+                double distanceToHub = vision.getDistanceFromAprilTag(target.getFiducialId());
+
+                if (updateSmartDashboard) {
+                  SmartDashboard.putNumber("Distance from Hub:", distanceToHub);
+                }
+
+                return distanceToHub;
+              }
+            }
+          }
+        }
+        if (updateSmartDashboard) {
+          SmartDashboard.putNumber("Distance from Hub:", -1);
+        }
+      }
+      return -1.0;
+    }
+
 
     /**
      * Get the latest result from the current cache.
@@ -533,8 +638,7 @@ public class Vision
       {
         mostRecentTimestamp = Math.max(mostRecentTimestamp, result.getTimestampSeconds());
       }
-      if ((resultsList.isEmpty() || (currentTimestamp - mostRecentTimestamp >= debounceTime)) &&
-          (currentTimestamp - lastReadTimestamp) >= debounceTime)
+      if (true)
       {
         resultsList = Robot.isReal() ? camera.getAllUnreadResults() : cameraSim.getCamera().getAllUnreadResults();
         lastReadTimestamp = currentTimestamp;
@@ -544,6 +648,7 @@ public class Vision
         if (!resultsList.isEmpty())
         {
           updateEstimatedGlobalPose();
+
         }
       }
     }
@@ -561,9 +666,14 @@ public class Vision
     private void updateEstimatedGlobalPose()
     {
       Optional<EstimatedRobotPose> visionEst = Optional.empty();
-      for (var change : resultsList)
+      for (var change : camera.getAllUnreadResults())
       {
-        visionEst = poseEstimator.update(change);
+        visionEst = poseEstimator.estimateCoprocMultiTagPose(change);
+        // System.out.println(visionEst.get().estimatedPose.toPose2d());
+        if (visionEst.isEmpty()) {
+          visionEst = poseEstimator.estimateLowestAmbiguityPose(change);
+        }
+
         updateEstimationStdDevs(visionEst, change.getTargets());
       }
       estimatedRobotPose = visionEst;
