@@ -168,6 +168,11 @@ public class ArmSubsystem extends SubsystemBase
     return arm.sysId(Volts.of(1), Volts.of(1).per(Second), Second.of(30));
   }
 
+  
+  public Angle getAngle() {
+    return arm.getAngle();
+  }
+
   public Command setAngle(Angle angle)
   {
     return arm.setAngle(angle);

@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.RPM;
 import java.util.function.Supplier;
 
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.IndexerSubsystem;
@@ -18,13 +19,19 @@ public class ShootCommand extends Command
     private ShooterSubsystem shooter;
     private IndexerSubsystem indexer;
     private Command armOscillateCommand;
-    //private Command mixer;
     private HopperSubsytem Hopper;
     private Supplier<AngularVelocity> setpoint;
     private IntakeSubsystem Intake;
+    double speed = -1.0;
+    boolean goingUp = true;
     
 
-    public ShootCommand(Supplier<AngularVelocity> shootSpeed, ShooterSubsystem shooter, IndexerSubsystem indexer, HopperSubsytem Hopper, IntakeSubsystem Intake, Command armOscillate
+    public ShootCommand(Supplier<AngularVelocity> shootSpeed, 
+                        ShooterSubsystem shooter, 
+                        IndexerSubsystem indexer, 
+                        HopperSubsytem Hopper, 
+                        IntakeSubsystem Intake, 
+                        Command armOscillate
     )
     {
         this.shooter = shooter;
@@ -33,8 +40,11 @@ public class ShootCommand extends Command
         this.Intake = Intake;
         setpoint = shootSpeed;
         this.armOscillateCommand = armOscillate;
-        //this.mixer = mixer;
-        addRequirements(shooter, indexer, Hopper, Intake);
+
+        addRequirements(shooter, 
+        indexer, 
+        Hopper,
+         Intake);
     }
     
     
@@ -45,7 +55,6 @@ public class ShootCommand extends Command
   public void initialize()
   {
     shooter.setMechanismVelocitySetpoint(setpoint.get());
-    //CommandScheduler.getInstance().schedule(mixer);
 
     
   }
@@ -60,16 +69,33 @@ public class ShootCommand extends Command
     shooter.setMechanismVelocitySetpoint(setpoint.get());
     if (shooter.getVelocity().in(RPM) >= setpoint.get().in(RPM) * 0.95)
     {
-      //CommandScheduler.getInstance().cancel(mixer);
       
-        indexer.setduty(-1);
-        Hopper.setduty(-1);
-        Intake.set(-0.5);
+      indexer.setduty(-1);
+      Intake.setduty(-0.8);
+
+
+      if (!CommandScheduler.getInstance().isScheduled(armOscillateCommand)) {
         CommandScheduler.getInstance().schedule(armOscillateCommand);
+      }
+
+
+        
+      if (goingUp) {
+        speed += 0.05;
+        if (speed >= -0.5) goingUp = false;
+    
+      } else {
+        speed -= 0.05;
+        if (speed <= -1.0) goingUp = true;
+      }
+
+      Hopper.setduty(speed);
+      SmartDashboard.putNumber("Pulse Speed", speed);
+        
     }else{
         indexer.setduty(0);
         Hopper.setduty(0);
-        Intake.set(0);
+        Intake.setduty(0);
     }
   }
 
@@ -105,5 +131,9 @@ public class ShootCommand extends Command
  
     CommandScheduler.getInstance().cancel(armOscillateCommand);
     shooter.setduty(0);
+    indexer.setduty(0);
+    Hopper.setduty(0);
+
+    
   }
 }

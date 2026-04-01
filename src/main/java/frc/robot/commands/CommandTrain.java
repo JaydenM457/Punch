@@ -27,7 +27,9 @@ public class CommandTrain {
 
     public CommandTrain(ArmSubsystem Arm,
      IndexerSubsystem Indexer, 
-        IntakeSubsystem Intake, ShooterSubsystem Shooter, HopperSubsytem Hopper){
+        IntakeSubsystem Intake, 
+        ShooterSubsystem Shooter, 
+        HopperSubsytem Hopper){
         this.Arm = Arm;
         this.Indexer = Indexer;
         this.Intake = Intake;
@@ -76,10 +78,10 @@ public class CommandTrain {
     public Command throwup(){
         return Arm.setAngleAndStop(COMMAND_TRAIN_CONSTANTS.DOWN_ANGLE)
             .alongWith(
-                Intake.set(THROWUP_COMMAND_CONSTANTS.INTAKE_OUT_HALF)
-            .alongWith(Indexer.set(THROWUP_COMMAND_CONSTANTS.INDEXER_OUT_HALF)
+                Intake.set(THROWUP_COMMAND_CONSTANTS.INTAKE_OUT)
+            .alongWith(Indexer.set(THROWUP_COMMAND_CONSTANTS.INDEXER_OUT)
             .alongWith(Shooter.setVelocity(THROWUP_COMMAND_CONSTANTS.SHOOTER_OUT)) 
-            .alongWith(Hopper.set(THROWUP_COMMAND_CONSTANTS.HOPPER_OUT_HALF))))
+            .alongWith(Hopper.set(THROWUP_COMMAND_CONSTANTS.HOPPER_OUT))))
             .beforeStarting(() -> SmartDashboard.putBoolean("Throwup", true))
         .finallyDo(interrupted -> SmartDashboard.putBoolean("Throwup", false));
     
@@ -89,8 +91,43 @@ public class CommandTrain {
     public Command armOscillate() {
         return Arm.setAngleAndStop(COMMAND_TRAIN_CONSTANTS.DOWN_ANGLE)
             .andThen(Arm.setAngleAndStop(COMMAND_TRAIN_CONSTANTS.SHOOT_ANGLE))
-            .repeatedly()
+            //.repeatedly()
                 .beforeStarting(() -> SmartDashboard.putBoolean("Arm Oscillating", true))
         .finallyDo(interrupted -> SmartDashboard.putBoolean("Arm Oscillating", false));
     }
+    
+    public Command PULSE() {
+        return new Command() {
+            double speed = -1.0;
+            boolean goingUp = true;
+
+            @Override
+            public void execute() {
+
+                if (goingUp) {
+                    speed += 0.05;
+                    if (speed >= -0.5) goingUp = false;
+    
+                } else {
+                    speed -= 0.05;
+                    if (speed <= -1.0) goingUp = true;
+                }
+
+                Hopper.set(speed).schedule();
+                SmartDashboard.putNumber("Pulse Speed", speed);
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                Hopper.set(0).schedule(); // stop motor
+            }
+
+            @Override
+            public boolean isFinished() {
+                return false; 
+            }
+        }
+        ;//.withTimeout(6.0); // <--- command stops after 2 seconds
+    }
+
 }

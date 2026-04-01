@@ -29,15 +29,34 @@
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "CorrnerShoot"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "CorrnerShoot"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ArmUp"
+                }
+              }
+            ]
           }
         },
         {
           "type": "named",
           "data": {
             "name": "MotorStop"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ArmDown"
           }
         },
         {
@@ -59,9 +78,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "CorrnerShoot"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "CorrnerShoot"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ArmUp"
+                }
+              }
+            ]
           }
         },
         {
