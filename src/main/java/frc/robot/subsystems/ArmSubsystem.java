@@ -110,14 +110,9 @@ public class ArmSubsystem extends SubsystemBase
       .withVendorConfig(new SparkMaxConfig().apply(new AbsoluteEncoderConfig().zeroCentered(true)));
 
 
-
-
   private final SmartMotorController       leaderMotorController            = new SparkWrapper(LeaderArmMotor,
                                                                                DCMotor.getNEO(2),
                                                                                leaderMotorConfig);
-
-
-
 
 
   private ArmConfig m_config = new ArmConfig(leaderMotorController)

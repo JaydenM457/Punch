@@ -61,7 +61,7 @@ public class RobotContainer
 {
   
   private final CommandPS5Controller driverController = new CommandPS5Controller(0);
-  //private final  CommandPS5Controller driverController = new CommandPS5Controller(0);
+  //private final  CommandPS5Controller driverController2 = new CommandPS5Controller(0);
   private final CommandPS5Controller m_operatorController = new CommandPS5Controller(1);
 
    private final ArmSubsystem m_arm = new ArmSubsystem();
@@ -193,7 +193,7 @@ public class RobotContainer
 
   private void configureBindings()
   {
-
+//Two controller config
   m_operatorController.R2().whileTrue(new ShootCommand(() -> SHOOTER_SPEED.SIDE_TRENCH_VELOCITY,  
                                                               m_shooter, 
                                                               m_indexer, 
@@ -227,15 +227,15 @@ public class RobotContainer
                                                               ));
 
     
-    // m_operatorController.L1().whileTrue(new ShootCommand(() -> SHOOTER_SPEED.FAR_VELOCITY,  
-    //                                                           m_shooter, 
-    //                                                           m_indexer, 
-    //                                                           m_Hopper,
-    //                                                           m_intake, 
-    //                                                           armOscillateCommand
-    //                                                           ));
+    m_operatorController.L1().whileTrue(new ShootCommand(() -> SHOOTER_SPEED.FAR_VELOCITY,  
+                                                              m_shooter, 
+                                                              m_indexer, 
+                                                              m_Hopper,
+                                                              m_intake, 
+                                                              armOscillateCommand
+                                                              ));
 
-
+    //Two CONTROLLER CONFIG
     m_operatorController.L1().onFalse(m_CommandTrain.mixer());
     m_operatorController.L1().onFalse(m_arm.setAngleAndStop(COMMAND_TRAIN_CONSTANTS.SAFE_ANGLE));
     m_operatorController.L1().onTrue(m_arm.setAngleAndStop(COMMAND_TRAIN_CONSTANTS.DOWN_ANGLE));
@@ -249,22 +249,22 @@ public class RobotContainer
     m_operatorController.povUp().whileTrue(m_arm.setAngle(COMMAND_TRAIN_CONSTANTS.SAFE_ANGLE));
     m_operatorController.povDown().whileTrue(m_arm.setAngle(COMMAND_TRAIN_CONSTANTS.DOWN_ANGLE));
 
-    //m_operatorController.R3().whileTrue(m_CommandTrain.armOscillate());
-    // driverController.R2().whileTrue(new ShootCommand(() -> SHOOTER_SPEED.SIDE_TRENCH_VELOCITY,  
-    //                                                           m_shooter, 
-    //                                                           m_indexer, 
-    //                                                           m_Hopper,
-    //                                                           m_intake, 
-    //                                                           armOscillateCommand
-    //                                                           ));
+    m_operatorController.R3().whileTrue(m_CommandTrain.armOscillate());
+    driverController.R2().whileTrue(new ShootCommand(() -> SHOOTER_SPEED.SHORTER_VELOCITY,  
+                                                              m_shooter, 
+                                                              m_indexer, 
+                                                              m_Hopper,
+                                                              m_intake, 
+                                                              armOscillateCommand
+                                                              ));
 
-    // driverController.L2().whileTrue(new ShootCommand(() -> SHOOTER_SPEED.CORRNER_VELOCITY,  
-    //                                                           m_shooter, 
-    //                                                           m_indexer, 
-    //                                                           m_Hopper,
-    //                                                           m_intake, 
-    //                                                           armOscillateCommand
-    //                                                           ));
+    driverController.L2().whileTrue(new ShootCommand(() -> SHOOTER_SPEED.CORRNER_VELOCITY,  
+                                                              m_shooter, 
+                                                              m_indexer, 
+                                                              m_Hopper,
+                                                              m_intake, 
+                                                              armOscillateCommand
+                                                              ));
 
     // driverController.R1().whileTrue(new ShootCommand(() -> SHOOTER_SPEED.SHORTER_VELOCITY,  
     //                                                           m_shooter, 
@@ -282,16 +282,17 @@ public class RobotContainer
     //                                                           m_arm
     //                                                           ));                                 
 
-    // // driverController.L1().onFalse(m_CommandTrain.mixer());
-    // // driverController.L2().onFalse(m_CommandTrain.mixer());
-    // // driverController.R1().onFalse(m_CommandTrain.mixer());
-    // // driverController.R2().onFalse(m_CommandTrain.mixer());
+    // driverController.L1().onFalse(m_CommandTrain.mixer());
+    driverController.L2().onFalse(m_CommandTrain.mixer());
+    // driverController.R1().onFalse(m_CommandTrain.mixer());
+    driverController.R2().onFalse(m_CommandTrain.mixer());
 
-    // // driverController.L1().whileTrue(m_CommandTrain.Intaking());
-    // // driverController.triangle().whileTrue(m_CommandTrain.throwup());
+    driverController.L1().whileTrue(m_CommandTrain.Intaking());
+    driverController.R1().whileTrue(m_CommandTrain.throwup());
 
-    // // driverController.povUp().whileTrue(m_arm.setAngle(COMMAND_TRAIN_CONSTANTS.SAFE_ANGLE));
-    // // driverController.povDown().whileTrue(m_arm.setAngle(COMMAND_TRAIN_CONSTANTS.DOWN_ANGLE));
+    driverController.povUp().whileTrue(m_arm.setAngle(COMMAND_TRAIN_CONSTANTS.SAFE_ANGLE));
+    driverController.povDown().whileTrue(m_arm.setAngle(COMMAND_TRAIN_CONSTANTS.DOWN_ANGLE));
+    driverController.circle().whileTrue(m_CommandTrain.armOscillate());
 
     driverController.cross().onTrue((Commands.runOnce(drivebase::zeroGyro)));
 
@@ -391,35 +392,35 @@ public class RobotContainer
       drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
     }
 
-    if (Robot.isSimulation())
-    {
-      driverController.create().onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
-      driverController.button(1).whileTrue(drivebase.sysIdDriveMotorCommand());
-
-    }
-    if (DriverStation.isTest())
-    {
-      drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity); // Overrides drive command above!
-
-    //   driverController.square().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
-    //   driverController.triangle().whileTrue(drivebase.driveToDistanceCommand(1.0, 0.2));
-    //   driverController.create().onTrue((Commands.runOnce(drivebase::zeroGyro)));
-    //   driverController.options().whileTrue(drivebase.centerModulesCommand());
-    //   //driverController.L1().onTrue(Commands.none());
-    //   driverController.R1().onTrue(Commands.none());
-    // } else
+    // if (Robot.isSimulation())
     // {
-    //   //driverController.cross().onTrue((Commands.runOnce(drivebase::zeroGyro)));
-    //   driverController.square().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
-    //   driverController.circle().whileTrue(
-    //       drivebase.driveToPose(
-    //           new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))
-    //                           );
-    //   driverController.create().whileTrue(Commands.none());
-    //   driverController.options().whileTrue(Commands.none());
-    //   //driverController.L1().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
-    //   driverController.R1().onTrue(Commands.none());
-     }
+    //   driverController.create().onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
+    //   driverController.button(1).whileTrue(drivebase.sysIdDriveMotorCommand());
+
+    // }
+    // if (DriverStation.isTest())
+    // {
+    //   drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity); // Overrides drive command above!
+
+    // //   driverController.square().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
+    // //   driverController.triangle().whileTrue(drivebase.driveToDistanceCommand(1.0, 0.2));
+    // //   driverController.create().onTrue((Commands.runOnce(drivebase::zeroGyro)));
+    // //   driverController.options().whileTrue(drivebase.centerModulesCommand());
+    // //   //driverController.L1().onTrue(Commands.none());
+    // //   driverController.R1().onTrue(Commands.none());
+    // // } else
+    // // {
+    // //   //driverController.cross().onTrue((Commands.runOnce(drivebase::zeroGyro)));
+    // //   driverController.square().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
+    // //   driverController.circle().whileTrue(
+    // //       drivebase.driveToPose(
+    // //           new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))
+    // //                           );
+    // //   driverController.create().whileTrue(Commands.none());
+    // //   driverController.options().whileTrue(Commands.none());
+    // //   //driverController.L1().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
+    // //   driverController.R1().onTrue(Commands.none());
+    //  }
 
   }
 

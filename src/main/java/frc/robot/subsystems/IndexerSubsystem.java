@@ -36,7 +36,7 @@ public class IndexerSubsystem extends SubsystemBase {
     return run(()->indexerMotor.set(dutycycle));
   }
 
-      public void setduty(double dutyCycle) {
+    public void setduty(double dutyCycle) {
     indexerMotor.set(dutyCycle);
 }
 
