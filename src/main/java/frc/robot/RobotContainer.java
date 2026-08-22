@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.COMMAND_TRAIN_CONSTANTS;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.COMMAND_TRAIN_CONSTANTS.SHOOTER_SPEED;
+import frc.robot.commands.AimCommand;
 import frc.robot.commands.AutoCommands;
 //import frc.robot.commands.AutoCommands;
 //import frc.robot.commands.AutoIntaking;
@@ -35,6 +36,7 @@ import frc.robot.commands.CommandTrain;
 import frc.robot.commands.FairyCommand;
 //import frc.robot.commands.PulseCommand;
 import frc.robot.commands.ShootCommand;
+import frc.robot.commands.ToggleAimCommand;
 //import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -296,6 +298,9 @@ public class RobotContainer
 
     driverController.cross().onTrue((Commands.runOnce(drivebase::zeroGyro)));
 
+    driverController.button(1).onTrue(new AimCommand(drivebase));
+    driverController.button(2).onTrue(new ToggleAimCommand(drivebase));
+
 
     // m_operatorController.button(1).onTrue( new AutoShoot(() -> SHOOTER_SPEED.CORRNER_VELOCITY,  
     // m_shooter, m_indexer, m_Hopper, 
@@ -386,7 +391,8 @@ public class RobotContainer
 
     if (RobotBase.isSimulation())
     {
-      drivebase.setDefaultCommand(driveFieldOrientedDirectAngleKeyboard);
+      //drivebase.setDefaultCommand(driveFieldOrientedDirectAngleKeyboard);
+      drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
     } else
     {                                                                                                                                 
       drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
