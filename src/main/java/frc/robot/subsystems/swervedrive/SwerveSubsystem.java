@@ -782,8 +782,8 @@ public class SwerveSubsystem extends SubsystemBase
   }
 
   public final Translation2d[] targets = {
-    new Translation2d(4.5,4.0), // Blue tower
-    new Translation2d(12.0, 4.0), // Red tower
+    new Translation2d(4.4,4.4), // Blue tower
+    new Translation2d(12.3, 3.7), // Red tower
     new Translation2d(0.0, 1.0), // Blue Human Element
     new Translation2d(16.6, 7.0), // Red Human Element
     new Translation2d(0.0, 7.0), // Blue Wall
