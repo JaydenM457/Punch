@@ -28,6 +28,10 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.BooleanTopic;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
@@ -83,6 +87,11 @@ public class SwerveSubsystem extends SubsystemBase
 
   private boolean alwaysPointAtTarget = false;
 
+  private NetworkTableInstance networkTableInstance = null;
+	private NetworkTable networkTable = null;
+  private BooleanPublisher alwaysPointAtTargetPublisher = null;
+  private BooleanTopic topicAutoTracking = null;
+
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
    *
@@ -118,6 +127,13 @@ public class SwerveSubsystem extends SubsystemBase
       // Stop the odometry thread if we are using vision that way we can synchronize updates better.
       swerveDrive.stopOdometryThread();
     }
+
+    networkTableInstance = NetworkTableInstance.getDefault();
+    networkTable = networkTableInstance.getTable("Tracking");
+    topicAutoTracking = networkTable.getBooleanTopic("autotracking");
+    alwaysPointAtTargetPublisher = topicAutoTracking.publish();
+    alwaysPointAtTargetPublisher.set(false);
+
     setupPathPlanner();
   }
 
@@ -792,6 +808,7 @@ public class SwerveSubsystem extends SubsystemBase
 
   public void toggleAlwaysPointAtTarget() {
     alwaysPointAtTarget = !alwaysPointAtTarget;
+    alwaysPointAtTargetPublisher.set(alwaysPointAtTarget);
   }
 
   public boolean pointAtTarget() {
